@@ -58,6 +58,9 @@
           "buildTarget": "frontend:build:development"
         }
       },
+      "options": {
+        "proxyConfig": "apps/frontend/proxy.conf.json"
+      },
       "defaultConfiguration": "development"
     },
     "extract-i18n": {
