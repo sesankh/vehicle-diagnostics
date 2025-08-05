@@ -1,23 +1,55 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { VehiclesTableComponent, Vehicle } from '@vehicles-dashboard/diagnostic-ui';
+import { Router } from '@angular/router';
+import { CustomTableComponent, TableColumn, TableAction, ProgressLoaderComponent } from '@vehicles-dashboard/shared-ui';
 import { DiagnosticService, VehicleStats } from '@vehicles-dashboard/ui-api-service';
 import { Subscription } from 'rxjs';
+
+export interface Vehicle {
+  id: string;
+  name: string;
+  model: string;
+  year: number;
+  status: 'active' | 'maintenance' | 'offline';
+  lastDiagnostic?: string;
+  errorCount?: number;
+  lastUpdate?: string;
+}
 
 @Component({
   selector: 'app-vehicles',
   standalone: true,
-  imports: [CommonModule, VehiclesTableComponent],
+  imports: [CommonModule, CustomTableComponent, ProgressLoaderComponent],
   templateUrl: './vehicles.component.html',
   styleUrl: './vehicles.component.css'
 })
 export class VehiclesComponent implements OnInit, OnDestroy {
   vehicles: Vehicle[] = [];
   isLoading = true;
+  
+  columns: TableColumn[] = [
+    { key: 'id', label: 'Vehicle ID', sortable: true, width: '120px' },
+    { key: 'name', label: 'Name', sortable: true },
+    { key: 'model', label: 'Model', sortable: true },
+    { key: 'year', label: 'Year', sortable: true, type: 'number', width: '80px' },
+    { key: 'status', label: 'Status', sortable: true, type: 'status', width: '120px' },
+    { key: 'errorCount', label: 'Errors', sortable: true, type: 'number', width: '80px' },
+    { key: 'lastDiagnostic', label: 'Last Diagnostic', sortable: true, type: 'date' },
+    { key: 'lastUpdate', label: 'Last Update', sortable: true, type: 'date' }
+  ];
+
+  actions: TableAction[] = [
+    { label: 'View', icon: 'visibility', action: 'view', color: 'primary' },
+    { label: 'Edit', icon: 'edit', action: 'edit', color: 'secondary' },
+    { label: 'Delete', icon: 'delete', action: 'delete', color: 'danger' }
+  ];
 
   private subscriptions = new Subscription();
 
-  constructor(private diagnosticService: DiagnosticService) {}
+  constructor(
+    private router: Router,
+    private diagnosticService: DiagnosticService
+  ) {}
 
   ngOnInit(): void {
     this.loadVehicleData();
@@ -74,19 +106,29 @@ export class VehiclesComponent implements OnInit, OnDestroy {
     };
   }
 
+  handleTableAction(event: { action: string; item: Vehicle }): void {
+    switch (event.action) {
+      case 'view':
+      case 'edit':
+        this.navigateToVehicleDetails(event.item.id);
+        break;
+      case 'delete':
+        this.deleteVehicle(event.item);
+        break;
+    }
+  }
+
+  handleRowClick(vehicle: Vehicle): void {
+    this.navigateToVehicleDetails(vehicle.id);
+  }
+
   addVehicle() {
     console.log('Add vehicle clicked');
     // TODO: Implement add vehicle functionality
   }
 
-  viewVehicle(vehicle: Vehicle) {
-    console.log('View vehicle clicked:', vehicle);
-    // TODO: Implement view vehicle functionality
-  }
-
-  editVehicle(vehicle: Vehicle) {
-    console.log('Edit vehicle clicked:', vehicle);
-    // TODO: Implement edit vehicle functionality
+  navigateToVehicleDetails(vehicleId: string): void {
+    this.router.navigate(['/vehicles', vehicleId]);
   }
 
   deleteVehicle(vehicle: Vehicle) {

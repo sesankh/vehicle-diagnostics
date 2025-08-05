@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchPanelComponent } from '../search-panel/search-panel.component';
-import { LogsTableComponent } from '../logs-table/logs-table.component';
-import { FileUploadComponent } from '@vehicles-dashboard/shared-ui';
-import { DiagnosticService, ApiResponse, DiagnosticLogEntry, SearchLogsDto } from '../../../../../ui-api-service/src/lib/diagnostic.service';
+import { CustomTableComponent, TableColumn, TableAction, ProgressLoaderComponent, FileUploadComponent } from '@vehicles-dashboard/shared-ui';
+import { DiagnosticService, ApiResponse, DiagnosticLogEntry, SearchLogsDto } from '@vehicles-dashboard/ui-api-service';
 
 @Component({
   selector: 'app-diagnostic-dashboard',
   standalone: true,
-  imports: [CommonModule, SearchPanelComponent, LogsTableComponent, FileUploadComponent],
+  imports: [CommonModule, SearchPanelComponent, CustomTableComponent, ProgressLoaderComponent, FileUploadComponent],
   templateUrl: './diagnostic-dashboard.component.html',
   styleUrl: './diagnostic-dashboard.component.css'
 })
@@ -16,6 +15,18 @@ export class DiagnosticDashboardComponent implements OnInit {
   logs: DiagnosticLogEntry[] = [];
   isLoading = false;
   isFiltered = false;
+
+  columns: TableColumn[] = [
+    { key: 'timestamp', label: 'Timestamp', sortable: true, type: 'date' },
+    { key: 'vehicleId', label: 'Vehicle ID', sortable: true, type: 'number', width: '100px' },
+    { key: 'level', label: 'Level', sortable: true, type: 'status', width: '100px' },
+    { key: 'code', label: 'Code', sortable: true, width: '120px' },
+    { key: 'message', label: 'Message', sortable: false }
+  ];
+
+  actions: TableAction[] = [
+    { label: 'View', icon: 'visibility', action: 'view', color: 'primary' }
+  ];
 
   constructor(private diagnosticService: DiagnosticService) {}
 
@@ -112,5 +123,19 @@ export class DiagnosticDashboardComponent implements OnInit {
         }
       });
     }
+  }
+
+  handleTableAction(event: { action: string; item: DiagnosticLogEntry }): void {
+    switch (event.action) {
+      case 'view':
+        console.log('View log entry:', event.item);
+        // TODO: Implement view log details
+        break;
+    }
+  }
+
+  handleRowClick(log: DiagnosticLogEntry): void {
+    console.log('Log entry clicked:', log);
+    // TODO: Implement log details view
   }
 }

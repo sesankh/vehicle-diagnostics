@@ -1,0 +1,211 @@
+<div class="vehicle-details-container">
+  <app-progress-loader 
+    [loading]="isLoading" 
+    message="Loading vehicle details..."
+    [overlay]="true"
+    size="large"
+  ></app-progress-loader>
+
+  <div *ngIf="!isLoading && vehicle" class="vehicle-details">
+    <!-- Header -->
+    <div class="header">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-icons">arrow_back</span>
+        Back to Vehicles
+      </button>
+      
+      <div class="header-actions" *ngIf="!isEditing">
+        <button class="edit-btn" (click)="startEditing()">
+          <span class="material-icons">edit</span>
+          Edit
+        </button>
+      </div>
+      
+      <div class="header-actions" *ngIf="isEditing">
+        <button class="cancel-btn" (click)="cancelEditing()">
+          <span class="material-icons">close</span>
+          Cancel
+        </button>
+        <button class="save-btn" (click)="saveVehicle()">
+          <span class="material-icons">save</span>
+          Save
+        </button>
+      </div>
+    </div>
+
+    <!-- Vehicle Info -->
+    <div class="vehicle-info">
+      <div class="vehicle-header">
+        <div class="vehicle-title">
+          <h1>{{ vehicle.name }}</h1>
+          <span class="vehicle-id">{{ vehicle.id }}</span>
+        </div>
+        <div class="vehicle-status">
+          <span class="status-badge" [class]="getStatusClass(vehicle.status)">
+            {{ vehicle.status }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Basic Information -->
+      <div class="info-section">
+        <h2>Basic Information</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Model</label>
+            <input 
+              *ngIf="isEditing" 
+              [(ngModel)]="vehicle.model" 
+              type="text" 
+              class="form-input"
+            >
+            <span *ngIf="!isEditing">{{ vehicle.model }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Year</label>
+            <input 
+              *ngIf="isEditing" 
+              [(ngModel)]="vehicle.year" 
+              type="number" 
+              class="form-input"
+            >
+            <span *ngIf="!isEditing">{{ vehicle.year }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Manufacturer</label>
+            <input 
+              *ngIf="isEditing" 
+              [(ngModel)]="vehicle.manufacturer" 
+              type="text" 
+              class="form-input"
+            >
+            <span *ngIf="!isEditing">{{ vehicle.manufacturer }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Color</label>
+            <input 
+              *ngIf="isEditing" 
+              [(ngModel)]="vehicle.color" 
+              type="text" 
+              class="form-input"
+            >
+            <span *ngIf="!isEditing">{{ vehicle.color }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>VIN</label>
+            <input 
+              *ngIf="isEditing" 
+              [(ngModel)]="vehicle.vin" 
+              type="text" 
+              class="form-input"
+            >
+            <span *ngIf="!isEditing">{{ vehicle.vin }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>License Plate</label>
+            <input 
+              *ngIf="isEditing" 
+              [(ngModel)]="vehicle.licensePlate" 
+              type="text" 
+              class="form-input"
+            >
+            <span *ngIf="!isEditing">{{ vehicle.licensePlate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Technical Information -->
+      <div class="info-section">
+        <h2>Technical Information</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Engine Size</label>
+            <input 
+              *ngIf="isEditing" 
+              [(ngModel)]="vehicle.engineSize" 
+              type="text" 
+              class="form-input"
+            >
+            <span *ngIf="!isEditing">{{ vehicle.engineSize }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Transmission</label>
+            <input 
+              *ngIf="isEditing" 
+              [(ngModel)]="vehicle.transmission" 
+              type="text" 
+              class="form-input"
+            >
+            <span *ngIf="!isEditing">{{ vehicle.transmission }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Fuel Type</label>
+            <input 
+              *ngIf="isEditing" 
+              [(ngModel)]="vehicle.fuelType" 
+              type="text" 
+              class="form-input"
+            >
+            <span *ngIf="!isEditing">{{ vehicle.fuelType }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Mileage</label>
+            <input 
+              *ngIf="isEditing" 
+              [(ngModel)]="vehicle.mileage" 
+              type="number" 
+              class="form-input"
+            >
+            <span *ngIf="!isEditing">{{ vehicle.mileage | number }} km</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diagnostic Information -->
+      <div class="info-section">
+        <h2>Diagnostic Information</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Last Diagnostic</label>
+            <span>{{ vehicle.lastDiagnostic }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Last Update</label>
+            <span>{{ vehicle.lastUpdate }}</span>
+          </div>
+          
+          <div class="info-item">
+            <label>Error Count</label>
+            <span class="error-count" [class]="vehicle.errorCount && vehicle.errorCount > 5 ? 'high' : 'low'">
+              {{ vehicle.errorCount || 0 }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="info-section">
+        <h2>Notes</h2>
+        <div class="notes-container">
+          <textarea 
+            *ngIf="isEditing" 
+            [(ngModel)]="vehicle.notes" 
+            class="form-textarea"
+            rows="4"
+            placeholder="Enter vehicle notes..."
+          ></textarea>
+          <p *ngIf="!isEditing" class="notes-text">{{ vehicle.notes || 'No notes available.' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

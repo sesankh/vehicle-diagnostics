@@ -1,0 +1,132 @@
+<div class="custom-table-container">
+  <!-- Search Bar -->
+  <div class="search-bar" *ngIf="showSearch">
+    <div class="search-input-wrapper">
+      <span class="material-icons search-icon">search</span>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="onSearchChange()"
+        placeholder="Search..."
+        class="search-input"
+      >
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th 
+            *ngFor="let column of columns" 
+            [style.width]="column.width"
+            [class.sortable]="column.sortable"
+            (click)="column.sortable ? sortBy(column.key) : null"
+          >
+            <div class="header-content">
+              <span>{{ column.label }}</span>
+              <span 
+                *ngIf="column.sortable" 
+                class="material-icons sort-icon"
+                [class.active]="sortField === column.key"
+              >
+                {{ getSortIcon(column.key) }}
+              </span>
+            </div>
+          </th>
+          <th *ngIf="actions.length > 0" class="actions-header">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr 
+          *ngFor="let item of paginatedData; trackBy: trackByFn" 
+          (click)="handleRowClick(item)"
+          class="table-row"
+          [class.clickable]="true"
+        >
+          <td *ngFor="let column of columns" [class]="getCellClass(column)">
+            <div *ngIf="column.type === 'status'" class="status-cell">
+              <span class="status-badge" [class]="getStatusClass(getCellValue(item, column))">
+                {{ getCellValue(item, column) }}
+              </span>
+            </div>
+            <div *ngIf="column.type === 'date'" class="date-cell">
+              {{ getCellValue(item, column) | date:'medium' }}
+            </div>
+            <div *ngIf="column.type === 'number'" class="number-cell">
+              {{ getCellValue(item, column) | number }}
+            </div>
+            <div *ngIf="!column.type || column.type === 'text'" class="text-cell">
+              {{ getCellValue(item, column) }}
+            </div>
+          </td>
+          <td *ngIf="actions.length > 0" class="actions-cell">
+            <div class="action-buttons">
+              <button 
+                *ngFor="let action of actions"
+                (click)="handleAction(action.action, item); $event.stopPropagation()"
+                class="action-btn"
+                [class]="'action-' + (action.color || 'primary')"
+                [title]="action.label"
+              >
+                <span class="material-icons">{{ action.icon }}</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-overlay">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading data...</p>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && paginatedData.length === 0" class="empty-state">
+      <span class="material-icons empty-icon">inbox</span>
+      <p>No data available</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="showPagination && totalPages > 1" class="pagination">
+    <div class="pagination-info">
+      Showing {{ startIndex }} to {{ endIndex }} of {{ sortedData.length }} entries
+    </div>
+    <div class="pagination-controls">
+      <button 
+        (click)="previousPage()" 
+        [disabled]="currentPage === 1"
+        class="pagination-btn"
+      >
+        <span class="material-icons">chevron_left</span>
+        Previous
+      </button>
+      
+      <div class="page-numbers">
+        <button 
+          *ngFor="let page of getPageNumbers()"
+          (click)="currentPage = page"
+          [class.active]="currentPage === page"
+          class="page-btn"
+        >
+          {{ page }}
+        </button>
+      </div>
+      
+      <button 
+        (click)="nextPage()" 
+        [disabled]="currentPage === totalPages"
+        class="pagination-btn"
+      >
+        Next
+        <span class="material-icons">chevron_right</span>
+      </button>
+    </div>
+  </div>
+</div> 
