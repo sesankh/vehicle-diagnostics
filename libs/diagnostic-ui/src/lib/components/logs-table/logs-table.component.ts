@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DiagnosticLogEntry } from '../../services/diagnostic.service';
+import { DiagnosticLogEntry } from '../../../../../ui-api-service/src/lib/diagnostic.service';
 
 @Component({
   selector: 'app-logs-table',

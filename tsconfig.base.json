@@ -20,7 +20,8 @@
         "libs/diagnostic-api/src/index.ts"
       ],
       "@vehicles-dashboard/diagnostic-ui": ["libs/diagnostic-ui/src/index.ts"],
-      "@vehicles-dashboard/shared-ui": ["libs/src/index.ts"]
+      "@vehicles-dashboard/shared-ui": ["shared-ui/src/index.ts"],
+      "@vehicles-dashboard/ui-api-service": ["ui-api-service/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

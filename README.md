@@ -59,8 +59,8 @@ vehicles-dashboard/
 ├── apps/
 │   ├── backend/                 # NestJS backend application
 │   ├── frontend/                # Angular frontend application
-│   ├── backend-e2e/             # Backend end-to-end tests
-│   └── frontend-e2e/            # Frontend end-to-end tests
+│  
+│  
 ├── libs/
 │   ├── data-model/              # Shared data models and DTOs
 │   ├── db-services/             # Database and business logic services

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { SearchLogsDto } from '../../services/diagnostic.service';
+import { SearchLogsDto } from '../../../../../ui-api-service/src/lib/diagnostic.service';
 
 @Component({
   selector: 'app-search-panel',
