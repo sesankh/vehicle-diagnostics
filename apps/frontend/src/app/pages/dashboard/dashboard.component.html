@@ -1,0 +1,109 @@
+<div class="dashboard">
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon active">
+        <span class="material-icons">directions_car</span>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-value">{{ totalVehicles }}</h3>
+        <p class="stat-label">Total Vehicles</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon active">
+        <span class="material-icons">check_circle</span>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-value">{{ activeVehicles }}</h3>
+        <p class="stat-label">Active Vehicles</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon maintenance">
+        <span class="material-icons">build</span>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-value">{{ maintenanceVehicles }}</h3>
+        <p class="stat-label">In Maintenance</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon offline">
+        <span class="material-icons">error</span>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-value">{{ offlineVehicles }}</h3>
+        <p class="stat-label">Offline</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="recent-activity" *ngIf="recentLogs.length > 0">
+    <div class="section-header">
+      <h2>Recent Activity</h2>
+      <button class="view-all-btn" (click)="viewReports()">View All</button>
+    </div>
+    
+    <div class="activity-list">
+      <div class="activity-item" *ngFor="let log of recentLogs.slice(0, 5)">
+        <div class="activity-icon" [class]="getActivityIconClass(log.level)">
+          <span class="material-icons">{{ getActivityIcon(log.level) }}</span>
+        </div>
+        <div class="activity-content">
+          <div class="activity-header">
+            <span class="vehicle-id">Vehicle {{ log.vehicleId }}</span>
+            <span class="activity-time">{{ formatTime(log.timestamp) }}</span>
+          </div>
+          <p class="activity-message">{{ log.message }}</p>
+          <span class="error-code">{{ log.code }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <div class="section-header">
+      <h2>Quick Actions</h2>
+    </div>
+    
+    <div class="actions-grid">
+      <button class="action-card" (click)="addVehicle()">
+        <span class="material-icons">add</span>
+        <h3>Add Vehicle</h3>
+        <p>Register a new vehicle to the fleet</p>
+      </button>
+
+      <button class="action-card" (click)="runDiagnostic()">
+        <span class="material-icons">build</span>
+        <h3>Run Diagnostic</h3>
+        <p>Perform system check on selected vehicles</p>
+      </button>
+
+      <button class="action-card" (click)="viewReports()">
+        <span class="material-icons">assessment</span>
+        <h3>View Reports</h3>
+        <p>Generate and view fleet reports</p>
+      </button>
+
+      <button class="action-card" (click)="uploadLogs()">
+        <span class="material-icons">upload</span>
+        <h3>Upload Logs</h3>
+        <p>Import diagnostic log files</p>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading dashboard data...</p>
+    </div>
+  </div>
+</div> 

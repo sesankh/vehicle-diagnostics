@@ -1,0 +1,58 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <h1>🚗 Vehicle Diagnostics Dashboard</h1>
+    <p>Upload, search, and analyze vehicle diagnostic logs</p>
+  </header>
+
+  <div class="dashboard-content">
+    <!-- File Upload Section -->
+    <section class="dashboard-section">
+      <app-file-upload (fileUpload)="onFileUpload($event)"></app-file-upload>
+    </section>
+
+    <!-- Search Section -->
+    <section class="dashboard-section">
+      <app-search-panel 
+        (search)="onSearch($event)" 
+        (clear)="onClearSearch()">
+      </app-search-panel>
+    </section>
+
+    <!-- Results Section -->
+    <section class="dashboard-section">
+      <div class="results-header">
+        <div class="results-info">
+          <h2>Diagnostic Results</h2>
+          <p *ngIf="logs.length > 0">
+            Showing {{ logs.length }} log entries
+            <span *ngIf="isFiltered">(filtered results)</span>
+          </p>
+        </div>
+        <div class="results-actions">
+          <button 
+            class="btn btn-primary" 
+            (click)="loadAllLogs()"
+            [disabled]="isLoading">
+            {{ isLoading ? 'Loading...' : 'Load All Logs' }}
+          </button>
+          <button 
+            class="btn btn-danger" 
+            (click)="clearAllLogs()"
+            [disabled]="logs.length === 0 || isLoading">
+            Clear All Logs
+          </button>
+        </div>
+      </div>
+
+      <app-logs-table [logs]="logs"></app-logs-table>
+    </section>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  </div>
+</div> 

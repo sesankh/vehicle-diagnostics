@@ -18,7 +18,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
-import { IsString, IsNotEmpty } from 'class-validator';
 
 // Define the DTOs locally since data-model project doesn't exist
 export interface DiagnosticLogEntry {
@@ -36,9 +35,7 @@ export interface SearchLogsDto {
   to?: string;
 }
 
-export class UploadLogsDto {
-  @IsString()
-  @IsNotEmpty()
+export interface UploadLogsDto {
   content: string;
 }
 

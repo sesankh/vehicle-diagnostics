@@ -1,0 +1,124 @@
+<div class="vehicles-table-container">
+  <!-- Table Header -->
+  <div class="table-header">
+    <div class="header-left">
+      <h2 class="table-title">Vehicles</h2>
+      <span class="vehicle-count">{{ vehicles.length }} vehicles</span>
+    </div>
+    <div class="header-right">
+      <div class="search-box">
+        <span class="material-icons search-icon">search</span>
+        <input 
+          type="text" 
+          placeholder="Search vehicles..." 
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="search-input"
+        >
+      </div>
+      <button class="add-btn" (click)="onAddVehicle.emit()">
+        <span class="material-icons">add</span>
+        Add Vehicle
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table class="vehicles-table">
+      <thead>
+        <tr>
+          <th class="sortable" (click)="sortBy('id')">
+            Vehicle ID
+            <span class="material-icons sort-icon">
+              {{ getSortIcon('id') }}
+            </span>
+          </th>
+          <th class="sortable" (click)="sortBy('name')">
+            Name
+            <span class="material-icons sort-icon">
+              {{ getSortIcon('name') }}
+            </span>
+          </th>
+          <th class="sortable" (click)="sortBy('model')">
+            Model
+            <span class="material-icons sort-icon">
+              {{ getSortIcon('model') }}
+            </span>
+          </th>
+          <th class="sortable" (click)="sortBy('year')">
+            Year
+            <span class="material-icons sort-icon">
+              {{ getSortIcon('year') }}
+            </span>
+          </th>
+          <th class="sortable" (click)="sortBy('status')">
+            Status
+            <span class="material-icons sort-icon">
+              {{ getSortIcon('status') }}
+            </span>
+          </th>
+          <th>Last Diagnostic</th>
+          <th>Error Count</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let vehicle of filteredVehicles" class="vehicle-row">
+          <td class="vehicle-id">{{ vehicle.id }}</td>
+          <td class="vehicle-name">{{ vehicle.name }}</td>
+          <td class="vehicle-model">{{ vehicle.model }}</td>
+          <td class="vehicle-year">{{ vehicle.year }}</td>
+          <td class="vehicle-status">
+            <span class="status-badge" [class]="'status-' + vehicle.status">
+              {{ getStatusText(vehicle.status) }}
+            </span>
+          </td>
+          <td class="last-diagnostic">
+            {{ vehicle.lastDiagnostic || 'No data' }}
+          </td>
+          <td class="error-count">
+            <span class="error-badge" [class]="getErrorBadgeClass(vehicle.errorCount || 0)">
+              {{ vehicle.errorCount || 0 }}
+            </span>
+          </td>
+          <td class="actions">
+            <div class="action-buttons">
+              <button class="action-btn view-btn" (click)="onViewVehicle.emit(vehicle)" title="View Details">
+                <span class="material-icons">visibility</span>
+              </button>
+              <button class="action-btn edit-btn" (click)="onEditVehicle.emit(vehicle)" title="Edit Vehicle">
+                <span class="material-icons">edit</span>
+              </button>
+              <button class="action-btn delete-btn" (click)="onDeleteVehicle.emit(vehicle)" title="Delete Vehicle">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button 
+      class="pagination-btn" 
+      [disabled]="currentPage === 1"
+      (click)="previousPage()">
+      Previous
+    </button>
+    
+    <span class="pagination-info">
+      Page {{ currentPage }} of {{ totalPages }}
+      ({{ startIndex + 1 }}-{{ endIndex }} of {{ filteredVehicles.length }})
+    </span>
+    
+    <button 
+      class="pagination-btn" 
+      [disabled]="currentPage === totalPages"
+      (click)="nextPage()">
+      Next
+    </button>
+  </div>
+</div> 

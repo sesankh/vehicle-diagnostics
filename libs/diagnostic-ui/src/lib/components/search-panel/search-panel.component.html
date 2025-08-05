@@ -1,0 +1,59 @@
+<div class="search-panel">
+  <h3 class="search-title">Search Diagnostic Logs</h3>
+  <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="vehicle" class="form-label">Vehicle ID:</label>
+        <input 
+          type="number" 
+          id="vehicle" 
+          formControlName="vehicle" 
+          placeholder="Enter Vehicle ID"
+          class="form-control"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="code" class="form-label">Error Code:</label>
+        <input 
+          type="text" 
+          id="code" 
+          formControlName="code" 
+          placeholder="Enter Error Code (e.g., U0420)"
+          class="form-control"
+        >
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="from" class="form-label">From Date:</label>
+        <input 
+          type="datetime-local" 
+          id="from" 
+          formControlName="from" 
+          class="form-control"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="to" class="form-label">To Date:</label>
+        <input 
+          type="datetime-local" 
+          id="to" 
+          formControlName="to" 
+          class="form-control"
+        >
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="searchForm.invalid">
+        Search
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="onClear()">
+        Clear
+      </button>
+    </div>
+  </form>
+</div> 

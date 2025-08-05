@@ -1,0 +1,90 @@
+<div class="logs-table-container">
+  <div class="table-header">
+    <h3 class="table-title">Diagnostic Logs</h3>
+    <span class="logs-count">{{ logs.length }} entries</span>
+  </div>
+  
+  <div class="table-wrapper">
+    <table class="logs-table">
+      <thead>
+        <tr>
+          <th class="sortable" (click)="sortBy('timestamp')">
+            Timestamp
+            <span class="material-icons sort-icon">
+              {{ getSortIcon('timestamp') }}
+            </span>
+          </th>
+          <th class="sortable" (click)="sortBy('vehicleId')">
+            Vehicle ID
+            <span class="material-icons sort-icon">
+              {{ getSortIcon('vehicleId') }}
+            </span>
+          </th>
+          <th class="sortable" (click)="sortBy('level')">
+            Level
+            <span class="material-icons sort-icon">
+              {{ getSortIcon('level') }}
+            </span>
+          </th>
+          <th class="sortable" (click)="sortBy('code')">
+            Error Code
+            <span class="material-icons sort-icon">
+              {{ getSortIcon('code') }}
+            </span>
+          </th>
+          <th>Message</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log of paginatedLogs" class="log-row">
+          <td class="timestamp">
+            {{ formatTimestamp(log.timestamp) }}
+          </td>
+          <td class="vehicle-id">
+            {{ log.vehicleId }}
+          </td>
+          <td class="level">
+            <span class="level-badge" [class]="'level-' + log.level.toLowerCase()">
+              {{ log.level }}
+            </span>
+          </td>
+          <td class="error-code">
+            {{ log.code }}
+          </td>
+          <td class="message">
+            {{ log.message }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Empty State -->
+  <div *ngIf="logs.length === 0" class="empty-state">
+    <span class="material-icons empty-icon">description</span>
+    <h3>No logs found</h3>
+    <p>Upload a diagnostic log file to see results here</p>
+  </div>
+  
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button 
+      class="pagination-btn" 
+      [disabled]="currentPage === 1"
+      (click)="previousPage()">
+      Previous
+    </button>
+    
+    <span class="pagination-info">
+      Page {{ currentPage }} of {{ totalPages }}
+      ({{ startIndex + 1 }}-{{ endIndex }} of {{ logs.length }})
+    </span>
+    
+    <button 
+      class="pagination-btn" 
+      [disabled]="currentPage === totalPages"
+      (click)="nextPage()">
+      Next
+    </button>
+  </div>
+</div> 

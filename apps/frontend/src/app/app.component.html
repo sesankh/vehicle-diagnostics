@@ -1,0 +1,52 @@
+<div class="app-container">
+  <!-- Navigation Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h1 class="app-title">Vehicle Dashboard</h1>
+      <p class="app-subtitle">Fleet Management System</p>
+    </div>
+    
+    <div class="nav-menu">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <span class="material-icons">dashboard</span>
+        <span class="nav-text">Dashboard</span>
+      </a>
+      
+      <a routerLink="/vehicles" routerLinkActive="active" class="nav-item">
+        <span class="material-icons">directions_car</span>
+        <span class="nav-text">Vehicles</span>
+      </a>
+      
+      <a routerLink="/diagnostic" routerLinkActive="active" class="nav-item">
+        <span class="material-icons">build</span>
+        <span class="nav-text">Diagnostics</span>
+      </a>
+      
+      <a routerLink="/reports" routerLinkActive="active" class="nav-item">
+        <span class="material-icons">assessment</span>
+        <span class="nav-text">Reports</span>
+      </a>
+      
+      <a routerLink="/settings" routerLinkActive="active" class="nav-item">
+        <span class="material-icons">settings</span>
+        <span class="nav-text">Settings</span>
+      </a>
+    </div>
+    
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="material-icons">account_circle</span>
+        <span class="user-name">Admin User</span>
+      </div>
+      <button class="logout-btn">
+        <span class="material-icons">logout</span>
+        <span>Logout</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div> 
