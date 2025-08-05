@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DiagnosticLogsController } from './controllers/diagnostic-logs.controller';
+import { DiagnosticLogsController } from './diagnostic-logs.controller';
 
 @Module({
   controllers: [DiagnosticLogsController],
@@ -8,6 +8,6 @@ import { DiagnosticLogsController } from './controllers/diagnostic-logs.controll
 })
 export class DiagnosticApiModule {
   constructor() {
-    console.log('🔧 DiagnosticApiModule loaded');
+    console.log(' DiagnosticApiModule loaded');
   }
 }
