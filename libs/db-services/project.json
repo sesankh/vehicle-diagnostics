@@ -1,0 +1,26 @@
+{
+  "name": "db-services",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "db-services/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/db-services",
+        "main": "db-services/src/index.ts",
+        "tsConfig": "db-services/tsconfig.lib.json",
+        "assets": ["db-services/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "db-services/jest.config.ts"
+      }
+    }
+  }
+}
