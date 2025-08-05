@@ -15,9 +15,12 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@vehicles-dashboard/data-model": ["libs/data-model/src/index.ts"],
+      "@vehicles-dashboard/diagnostic-api": [
+        "libs/diagnostic-api/src/index.ts"
+      ],
       "@vehicles-dashboard/diagnostic-ui": ["libs/diagnostic-ui/src/index.ts"],
-      "@vehicles-dashboard/diagnostic-api": ["libs/diagnostic-api/src/index.ts"],
-      "@vehicles-dashboard/data-model": ["libs/data-model/src/index.ts"]
+      "@vehicles-dashboard/shared-ui": ["libs/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

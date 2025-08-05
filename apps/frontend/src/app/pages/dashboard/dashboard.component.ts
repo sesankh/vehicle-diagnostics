@@ -16,7 +16,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   activeVehicles = 0;
   maintenanceVehicles = 0;
   offlineVehicles = 0;
-  recentLogs: DiagnosticLogEntry[] = [];
   isLoading = true;
 
   private subscriptions = new Subscription();
@@ -56,19 +55,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Load recent logs
-    this.subscriptions.add(
-      this.diagnosticService.getAllLogs().subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            this.recentLogs = response.data.slice(0, 10); // Get latest 10 logs
-          }
-        },
-        error: (error) => {
-          console.error('Error loading recent logs:', error);
-        }
-      })
-    );
+
   }
 
   private calculateDashboardStats(vehicleStats: VehicleStats[]): void {
@@ -93,60 +80,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.offlineVehicles = offline;
   }
 
-  getActivityIcon(level: string): string {
-    switch (level.toLowerCase()) {
-      case 'error':
-        return 'error';
-      case 'warning':
-        return 'warning';
-      case 'info':
-        return 'info';
-      default:
-        return 'info';
-    }
-  }
 
-  getActivityIconClass(level: string): string {
-    switch (level.toLowerCase()) {
-      case 'error':
-        return 'error';
-      case 'warning':
-        return 'warning';
-      case 'info':
-        return 'info';
-      default:
-        return 'info';
-    }
-  }
-
-  formatTime(timestamp: string): string {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-    
-    if (diffInHours < 1) {
-      return 'Just now';
-    } else if (diffInHours < 24) {
-      return `${Math.floor(diffInHours)}h ago`;
-    } else {
-      return date.toLocaleDateString();
-    }
-  }
 
   addVehicle() {
     console.log('Add vehicle clicked');
     this.router.navigate(['/vehicles']);
   }
 
-  runDiagnostic() {
-    console.log('Run diagnostic clicked');
-    this.router.navigate(['/diagnostics']);
-  }
 
-  viewReports() {
-    console.log('View reports clicked');
-    this.router.navigate(['/diagnostics']);
-  }
 
   uploadLogs() {
     console.log('Upload logs clicked');

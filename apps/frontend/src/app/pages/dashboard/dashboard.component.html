@@ -42,30 +42,6 @@
     </div>
   </div>
 
-  <!-- Recent Activity -->
-  <div class="recent-activity" *ngIf="recentLogs.length > 0">
-    <div class="section-header">
-      <h2>Recent Activity</h2>
-      <button class="view-all-btn" (click)="viewReports()">View All</button>
-    </div>
-    
-    <div class="activity-list">
-      <div class="activity-item" *ngFor="let log of recentLogs.slice(0, 5)">
-        <div class="activity-icon" [class]="getActivityIconClass(log.level)">
-          <span class="material-icons">{{ getActivityIcon(log.level) }}</span>
-        </div>
-        <div class="activity-content">
-          <div class="activity-header">
-            <span class="vehicle-id">Vehicle {{ log.vehicleId }}</span>
-            <span class="activity-time">{{ formatTime(log.timestamp) }}</span>
-          </div>
-          <p class="activity-message">{{ log.message }}</p>
-          <span class="error-code">{{ log.code }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Quick Actions -->
   <div class="quick-actions">
     <div class="section-header">
@@ -77,18 +53,6 @@
         <span class="material-icons">add</span>
         <h3>Add Vehicle</h3>
         <p>Register a new vehicle to the fleet</p>
-      </button>
-
-      <button class="action-card" (click)="runDiagnostic()">
-        <span class="material-icons">build</span>
-        <h3>Run Diagnostic</h3>
-        <p>Perform system check on selected vehicles</p>
-      </button>
-
-      <button class="action-card" (click)="viewReports()">
-        <span class="material-icons">assessment</span>
-        <h3>View Reports</h3>
-        <p>Generate and view fleet reports</p>
       </button>
 
       <button class="action-card" (click)="uploadLogs()">
