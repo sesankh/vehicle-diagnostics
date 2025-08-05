@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { DiagnosticService, VehicleStats, DiagnosticLogEntry } from '@vehicles-dashboard/diagnostic-ui';
+import { DiagnosticService, VehicleStats } from '@vehicles-dashboard/ui-api-service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -38,7 +38,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     
     // Subscribe to loading state
     this.subscriptions.add(
-      this.diagnosticService.isLoading$.subscribe(loading => {
+      this.diagnosticService.isLoading$.subscribe((loading: boolean) => {
         this.isLoading = loading;
       })
     );
@@ -49,7 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: (vehicleStats: VehicleStats[]) => {
           this.calculateDashboardStats(vehicleStats);
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error loading vehicle stats:', error);
         }
       })
@@ -93,4 +93,4 @@ export class DashboardComponent implements OnInit, OnDestroy {
     console.log('Upload logs clicked');
     this.router.navigate(['/diagnostics']);
   }
-}
+} 

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VehiclesTableComponent, Vehicle } from '@vehicles-dashboard/diagnostic-ui';
-import { DiagnosticService, VehicleStats } from '@vehicles-dashboard/diagnostic-ui';
+import { DiagnosticService, VehicleStats } from '@vehicles-dashboard/ui-api-service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -32,7 +32,7 @@ export class VehiclesComponent implements OnInit, OnDestroy {
     
     // Subscribe to loading state
     this.subscriptions.add(
-      this.diagnosticService.isLoading$.subscribe(loading => {
+      this.diagnosticService.isLoading$.subscribe((loading: boolean) => {
         this.isLoading = loading;
       })
     );
@@ -43,7 +43,7 @@ export class VehiclesComponent implements OnInit, OnDestroy {
           this.vehicles = vehicleStats.map(stats => this.convertToVehicle(stats));
           this.isLoading = false;
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error loading vehicle data:', error);
           this.isLoading = false;
         }

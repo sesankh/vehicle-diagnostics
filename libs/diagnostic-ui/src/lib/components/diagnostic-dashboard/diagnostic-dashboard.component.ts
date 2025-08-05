@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchPanelComponent } from '../search-panel/search-panel.component';
 import { LogsTableComponent } from '../logs-table/logs-table.component';
-import { FileUploadComponent } from '../file-upload/file-upload.component';
+import { FileUploadComponent } from '@vehicles-dashboard/shared-ui';
 import { DiagnosticService, ApiResponse, DiagnosticLogEntry, SearchLogsDto } from '../../../../../ui-api-service/src/lib/diagnostic.service';
 
 @Component({
