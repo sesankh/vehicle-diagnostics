@@ -10,7 +10,6 @@ export interface Vehicle {
   name: string;
   model: string;
   year: number;
-  status: 'active' | 'maintenance' | 'offline';
   lastDiagnostic?: string;
   errorCount?: number;
   lastUpdate?: string;
@@ -85,9 +84,7 @@ export class VehiclesComponent implements OnInit, OnDestroy {
       const search = this.searchTerm.toLowerCase();
       this.filteredVehicles = this.vehicles.filter(vehicle =>
         vehicle.id.toLowerCase().includes(search) ||
-        vehicle.name.toLowerCase().includes(search) ||
-        vehicle.model.toLowerCase().includes(search) ||
-        vehicle.status.toLowerCase().includes(search)
+        vehicle.name.toLowerCase().includes(search)
       );
     }
     this.currentPage = 1;
@@ -173,7 +170,6 @@ export class VehiclesComponent implements OnInit, OnDestroy {
       name: `Vehicle ${padNumber(stats.vehicleId, 4)}`,
       model: `Model ${stats.vehicleId}`,
       year: 2020 + (stats.vehicleId % 5),
-      status: this.calculateStatus(stats),
       lastDiagnostic: stats.lastDiagnostic,
       errorCount: stats.errorCount,
       lastUpdate: stats.lastUpdate,
@@ -183,11 +179,7 @@ export class VehiclesComponent implements OnInit, OnDestroy {
     };
   }
 
-  private calculateStatus(stats: VehicleStats): 'active' | 'maintenance' | 'offline' {
-    if (stats.errorCount > 5) return 'maintenance';
-    if (stats.totalLogs === 0) return 'offline';
-    return 'active';
-  }
+
 
   handleTableAction(event: { action: string; item: Vehicle }): void {
     switch (event.action) {

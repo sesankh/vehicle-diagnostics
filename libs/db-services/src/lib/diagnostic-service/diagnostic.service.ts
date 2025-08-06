@@ -1,5 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DiagnosticLogEntry, SearchLogsDto } from '@vehicles-dashboard/data-model';
+
+interface DiagnosticLogEntry {
+  vehicleId: number;
+  timestamp: string;
+  level: string;
+  code: string;
+  message: string;
+  details?: any;
+}
+
+interface SearchLogsDto {
+  vehicle?: number;
+  code?: string;
+  from?: string;
+  to?: string;
+  level?: string;
+}
 
 @Injectable()
 export class DiagnosticService {
@@ -52,9 +68,6 @@ export class DiagnosticService {
 
   uploadLogs(content: string): { success: boolean; count: number } {
     const parsedLogs = this.parseLogContent(content);
-    console.log("parsedLogs............", parsedLogs)
-    this.logs.push(...parsedLogs);
-    
     this.logger.log(`Uploaded ${parsedLogs.length} log entries`);
     
     return {

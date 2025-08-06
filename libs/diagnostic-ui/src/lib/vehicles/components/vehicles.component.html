@@ -30,9 +30,6 @@
         <tr>
           <th>Vehicle ID</th>
           <th>Name</th>
-          <th>Model</th>
-          <th>Year</th>
-          <th>Status</th>
           <th>Total Logs</th>
           <th>Last Diagnostic</th>
           <th>Actions</th>
@@ -46,13 +43,6 @@
         >
           <td>{{ vehicle.id }}</td>
           <td>{{ vehicle.name }}</td>
-          <td>{{ vehicle.model }}</td>
-          <td>{{ vehicle.year }}</td>
-          <td>
-            <span class="status-badge" [class]="'status-' + vehicle.status">
-              {{ vehicle.status }}
-            </span>
-          </td>
           <td>{{ vehicle.totalLogs || 0 }}</td>
           <td>{{ formatDateTime(vehicle.lastDiagnostic) }}</td>
           <td class="actions-cell">

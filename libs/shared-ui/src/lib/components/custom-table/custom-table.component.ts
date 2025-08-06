@@ -126,7 +126,44 @@ export class CustomTableComponent {
   }
 
   getCellValue(item: any, column: TableColumn): any {
-    return item[column.key];
+    const value = item[column.key];
+    
+    // Handle level formatting for diagnostic logs
+    if (column.key === 'level' && typeof value === 'string') {
+      return this.formatLevel(value);
+    }
+    
+    // Handle message formatting for diagnostic logs
+    if (column.key === 'message' && typeof value === 'string') {
+      return this.formatMessage(value);
+    }
+    
+    return value;
+  }
+
+  formatLevel(level: string): string {
+    if (!level) return 'Unknown';
+    
+    // The level field contains VEHICLE_ID, so we need to extract level from code/message
+    // This should be handled by the backend now, but as a fallback:
+    if (level.includes('VEHICLE_ID:')) {
+      return 'INFO'; // Default fallback
+    }
+    
+    const levelLower = level.toLowerCase();
+    if (levelLower.includes('error')) return 'Error';
+    if (levelLower.includes('warn')) return 'Warning';
+    if (levelLower.includes('debug')) return 'Debug';
+    if (levelLower.includes('info')) return 'Info';
+    
+    return level || 'Unknown';
+  }
+
+  formatMessage(message: string): string {
+    if (!message) return '';
+    
+    // Remove square brackets from the beginning and end
+    return message.replace(/^\[|\]$/g, '').trim();
   }
 
   getStatusClass(status: string): string {

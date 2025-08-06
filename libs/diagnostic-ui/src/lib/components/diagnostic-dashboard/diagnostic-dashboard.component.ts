@@ -61,7 +61,10 @@ export class DiagnosticDashboardComponent implements OnInit {
     this.diagnosticService.searchLogs(searchDto).subscribe({
       next: (response: ApiResponse<DiagnosticLogEntry[]>) => {
         if (response.success && response.data) {
-          this.logs = response.data;
+          // Sort logs from latest to oldest
+          this.logs = response.data.sort((a: DiagnosticLogEntry, b: DiagnosticLogEntry) => 
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
         } else {
           console.error('Search failed:', response.message);
           this.logs = [];
@@ -88,7 +91,10 @@ export class DiagnosticDashboardComponent implements OnInit {
     this.diagnosticService.getAllLogs().subscribe({
       next: (response: ApiResponse<DiagnosticLogEntry[]>) => {
         if (response.success && response.data) {
-          this.logs = response.data;
+          // Sort logs from latest to oldest
+          this.logs = response.data.sort((a: DiagnosticLogEntry, b: DiagnosticLogEntry) => 
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
         } else {
           console.error('Failed to load logs:', response.message);
           this.logs = [];

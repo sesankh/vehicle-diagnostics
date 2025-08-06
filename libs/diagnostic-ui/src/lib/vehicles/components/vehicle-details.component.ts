@@ -10,7 +10,6 @@ export interface VehicleDetails {
   name: string;
   model: string;
   year: number;
-  status: 'active' | 'maintenance' | 'offline';
   lastDiagnostic?: string;
   errorCount?: number;
   warningCount?: number;
@@ -83,10 +82,8 @@ export class VehicleDetailsComponent implements OnInit {
     
     const vehicleIdNum = parseInt(this.vehicleId!.replace('V', ''));
     
-    this.diagnosticService.getVehicleStats().subscribe({
-      next: (vehicleStats: VehicleStats[]) => {
-        const vehicleStat = vehicleStats.find(stat => stat.vehicleId === vehicleIdNum);
-        
+    this.diagnosticService.getVehicleStatsById(vehicleIdNum).subscribe({
+      next: (vehicleStat: VehicleStats | null) => {
         if (vehicleStat) {
           this.vehicle = this.convertToVehicleDetails(vehicleStat);
           this.originalVehicle = { ...this.vehicle };
@@ -113,7 +110,10 @@ export class VehicleDetailsComponent implements OnInit {
     this.diagnosticService.getAllLogs().subscribe({
       next: (response: any) => {
         if (response.success && response.data) {
-          this.vehicleLogs = response.data.filter((log: DiagnosticLogEntry) => log.vehicleId === vehicleIdNum);
+          // Filter logs for this vehicle and sort from latest to oldest
+          this.vehicleLogs = response.data
+            .filter((log: DiagnosticLogEntry) => log.vehicleId === vehicleIdNum)
+            .sort((a: DiagnosticLogEntry, b: DiagnosticLogEntry) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
         } else {
           this.vehicleLogs = [];
         }
@@ -170,7 +170,7 @@ export class VehicleDetailsComponent implements OnInit {
       this.filteredLogs = this.vehicleLogs.filter(log => 
         log.code.toLowerCase().includes(searchLower) ||
         log.message.toLowerCase().includes(searchLower) ||
-        log.level.toLowerCase().includes(searchLower)
+        this.formatLevel(log.level).toLowerCase().includes(searchLower)
       );
     }
   }
@@ -223,7 +223,6 @@ export class VehicleDetailsComponent implements OnInit {
       name: `Vehicle ${vehicleId}`,
       model: 'Unknown Model',
       year: 2024,
-      status: 'offline',
       lastDiagnostic: 'No data',
       errorCount: 0,
       warningCount: 0,
@@ -248,7 +247,6 @@ export class VehicleDetailsComponent implements OnInit {
       name: `Vehicle ${padNumber(stats.vehicleId, 4)}`,
       model: `Model ${stats.vehicleId}`,
       year: 2020 + (stats.vehicleId % 5),
-      status: this.calculateStatus(stats),
       lastDiagnostic: stats.lastDiagnostic,
       errorCount: stats.errorCount,
       warningCount: stats.warningCount,
@@ -259,11 +257,7 @@ export class VehicleDetailsComponent implements OnInit {
     };
   }
 
-  private calculateStatus(stats: VehicleStats): 'active' | 'maintenance' | 'offline' {
-    if (stats.errorCount > 5) return 'maintenance';
-    if (stats.totalLogs === 0) return 'offline';
-    return 'active';
-  }
+
 
   startEditing(): void {
     this.isEditing = true;
@@ -289,12 +283,28 @@ export class VehicleDetailsComponent implements OnInit {
     this.router.navigate(['/vehicles']);
   }
 
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'active': return 'status-active';
-      case 'maintenance': return 'status-maintenance';
-      case 'offline': return 'status-offline';
-      default: return 'status-offline';
+  formatLevel(level: string): string {
+    if (!level) return 'Unknown';
+    
+    // The level field contains VEHICLE_ID, so we need to extract level from code/message
+    // This should be handled by the backend now, but as a fallback:
+    if (level.includes('VEHICLE_ID:')) {
+      return 'INFO'; // Default fallback
     }
+    
+    const levelLower = level.toLowerCase();
+    if (levelLower.includes('error')) return 'Error';
+    if (levelLower.includes('warn')) return 'Warning';
+    if (levelLower.includes('debug')) return 'Debug';
+    if (levelLower.includes('info')) return 'Info';
+    
+    return level || 'Unknown';
+  }
+
+  formatMessage(message: string): string {
+    if (!message) return '';
+    
+    // Remove square brackets from the beginning and end
+    return message.replace(/^\[|\]$/g, '').trim();
   }
 } 

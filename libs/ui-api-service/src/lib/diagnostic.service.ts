@@ -77,7 +77,32 @@ export class DiagnosticService {
     return this.getAllLogs().pipe(
       map(response => {
         if (response.success && response.data) {
-          const filteredLogs = this.filterLogs(response.data, searchDto);
+          // Fix vehicleId extraction from level field when vehicleId is null
+          const processedLogs = response.data.map(log => {
+            let processedLog = { ...log };
+            
+            if (log.vehicleId === null || log.vehicleId === undefined) {
+              // Extract vehicle ID from level field if it contains "VEHICLE_ID:"
+              if (log.level && log.level.includes('VEHICLE_ID:')) {
+                const vehicleIdMatch = log.level.match(/VEHICLE_ID:(\d+)/);
+                if (vehicleIdMatch) {
+                  processedLog.vehicleId = parseInt(vehicleIdMatch[1], 10);
+                  processedLog.level = log.level.replace(/VEHICLE_ID:\d+\s*/, '').trim();
+                }
+              } else {
+                processedLog.vehicleId = 0;
+              }
+            }
+            
+            // Fix code extraction - remove "CODE:" prefix if present
+            if (log.code && log.code.startsWith('CODE:')) {
+              processedLog.code = log.code.replace('CODE:', '').trim();
+            }
+            
+            return processedLog;
+          });
+          
+          const filteredLogs = this.filterLogs(processedLogs, searchDto);
           return {
             success: true,
             data: filteredLogs,
@@ -147,11 +172,40 @@ export class DiagnosticService {
     this.isLoadingSubject.next(true);
     return this.http.get<ApiResponse<DiagnosticLogEntry[]>>(`${this.apiUrl}/all`)
       .pipe(
-        tap(response => {
+        map(response => {
           if (response.success && response.data) {
-            this.cachedLogs = response.data;
-            this.logsSubject.next(response.data);
+            // Fix vehicleId extraction from level field when vehicleId is null
+            const processedLogs = response.data.map(log => {
+              let processedLog = { ...log };
+              
+              if (log.vehicleId === null || log.vehicleId === undefined) {
+                // Extract vehicle ID from level field if it contains "VEHICLE_ID:"
+                if (log.level && log.level.includes('VEHICLE_ID:')) {
+                  const vehicleIdMatch = log.level.match(/VEHICLE_ID:(\d+)/);
+                  if (vehicleIdMatch) {
+                    processedLog.vehicleId = parseInt(vehicleIdMatch[1], 10);
+                    processedLog.level = log.level.replace(/VEHICLE_ID:\d+\s*/, '').trim();
+                  }
+                } else {
+                  processedLog.vehicleId = 0;
+                }
+              }
+              
+              // Fix code extraction - remove "CODE:" prefix if present
+              if (log.code && log.code.startsWith('CODE:')) {
+                processedLog.code = log.code.replace('CODE:', '').trim();
+              }
+              
+              return processedLog;
+            });
+            
+            this.cachedLogs = processedLogs;
+            this.logsSubject.next(processedLogs);
+            return { ...response, data: processedLogs };
           }
+          return response;
+        }),
+        tap(response => {
           this.isLoadingSubject.next(false);
         }),
         catchError(error => {
@@ -248,6 +302,30 @@ export class DiagnosticService {
     );
   }
 
+  getVehicleStatsById(vehicleId: number): Observable<VehicleStats | null> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/vehicle/${vehicleId}/stats`).pipe(
+      map(response => {
+        if (response.success && response.data) {
+          return {
+            vehicleId: vehicleId,
+            totalLogs: response.data.totalLogs,
+            errorCount: response.data.errorCount,
+            warningCount: response.data.warningCount,
+            infoCount: response.data.infoCount,
+            debugCount: response.data.debugCount,
+            lastDiagnostic: response.data.lastDiagnostic,
+            lastUpdate: response.data.lastUpdate
+          };
+        }
+        return null;
+      }),
+      catchError(error => {
+        console.error('Error fetching vehicle stats:', error);
+        return of(null);
+      })
+    );
+  }
+
   private calculateVehicleStats(logs: DiagnosticLogEntry[]): VehicleStats[] {
     const vehicleMap: { [key: number]: VehicleStats } = {};
 
@@ -268,23 +346,65 @@ export class DiagnosticService {
       const stats = vehicleMap[log.vehicleId];
       stats.totalLogs++;
 
-      switch (log.level.toLowerCase()) {
-        case 'error':
-          stats.errorCount++;
-          break;
-        case 'warning':
-        case 'warn':
-          stats.warningCount++;
-          break;
-        case 'info':
-          stats.infoCount++;
-          break;
-        case 'debug':
-          stats.debugCount++;
-          break;
-        default:
-          // Log any unexpected levels for debugging
-          break;
+      // Determine level based on diagnostic codes and message content
+      let actualLevel = 'INFO'; // default
+      
+      // Extract clean code without CODE: prefix
+      const cleanCode = log.code ? log.code.replace('CODE:', '').trim() : '';
+      
+      if (cleanCode) {
+        // OBD-II diagnostic trouble codes classification
+        const codeUpper = cleanCode.toUpperCase();
+        
+        // P-codes (Powertrain) - generally more serious
+        if (codeUpper.startsWith('P0')) {
+          // P0000-P0999: Generic OBD-II codes
+          if (['P0300', 'P0301', 'P0302', 'P0303', 'P0304', 'P0305', 'P0306', 'P0307', 'P0308'].includes(codeUpper)) {
+            actualLevel = 'ERROR'; // Misfire codes are critical
+          } else if (['P0171', 'P0172', 'P0174', 'P0175'].includes(codeUpper)) {
+            actualLevel = 'WARNING'; // Fuel trim issues
+          } else if (['P0420', 'P0430'].includes(codeUpper)) {
+            actualLevel = 'WARNING'; // Catalyst efficiency
+          } else {
+            actualLevel = 'WARNING'; // Other powertrain codes
+          }
+        } else if (codeUpper.startsWith('P1') || codeUpper.startsWith('P2') || codeUpper.startsWith('P3')) {
+          actualLevel = 'WARNING'; // Manufacturer-specific powertrain codes
+        } else if (codeUpper.startsWith('B0')) {
+          // B-codes (Body) - generally less critical
+          if (['B1000', 'B1001'].includes(codeUpper)) {
+            actualLevel = 'ERROR'; // Airbag system faults are critical
+          } else {
+            actualLevel = 'WARNING'; // Other body codes
+          }
+        } else if (codeUpper.startsWith('C0')) {
+          actualLevel = 'WARNING'; // Chassis codes
+        } else if (codeUpper.startsWith('U0')) {
+          actualLevel = 'WARNING'; // Network codes
+        }
+      }
+      
+      // Override based on message content if it contains specific keywords
+      if (log.message) {
+        const messageLower = log.message.toLowerCase();
+        if (messageLower.includes('fault') || messageLower.includes('failure') || messageLower.includes('critical')) {
+          actualLevel = 'ERROR';
+        } else if (messageLower.includes('warning') || messageLower.includes('below threshold')) {
+          actualLevel = 'WARNING';
+        } else if (messageLower.includes('info') || messageLower.includes('status')) {
+          actualLevel = 'INFO';
+        }
+      }
+      
+      const level = actualLevel.toLowerCase();
+      if (level.includes('error')) {
+        stats.errorCount++;
+      } else if (level.includes('warn')) {
+        stats.warningCount++;
+      } else if (level.includes('info')) {
+        stats.infoCount++;
+      } else if (level.includes('debug')) {
+        stats.debugCount++;
       }
 
       // Update last diagnostic and update times
@@ -310,12 +430,7 @@ export class DiagnosticService {
     return result.sort((a: VehicleStats, b: VehicleStats) => a.vehicleId - b.vehicleId);
   }
 
-  private calculateStatus(stats?: VehicleStats): 'active' | 'maintenance' | 'offline' {
-    if (!stats) return 'offline';
-    if (stats.errorCount > 5) return 'maintenance';
-    if (stats.totalLogs === 0 || !stats.lastUpdate) return 'offline';
-    return 'active';
-  }
+
 
   private calculateUptime(logs: DiagnosticLogEntry[]): number {
     if (logs.length === 0) return 0;

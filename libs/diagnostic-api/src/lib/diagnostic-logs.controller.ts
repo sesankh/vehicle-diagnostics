@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
-import { DiagnosticLogsService } from './services/diagnostic-logs.service';
+import { DiagnosticLogsService } from '@vehicles-dashboard/db-services';
 
 @Controller('logs')
 export class DiagnosticLogsController {
@@ -30,7 +30,7 @@ export class DiagnosticLogsController {
         message: 'Controller is working!',
         data: {
           timestamp: new Date().toISOString(),
-          logsCount: logsCount.count,
+          logsCount: logsCount.data,
         }
       };
     } catch (error) {
@@ -41,6 +41,22 @@ export class DiagnosticLogsController {
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
+  }
+
+  @Get('db-info')
+  async getDatabaseInfo() {
+    return this.diagnosticLogsService.getDatabaseInfo();
+  }
+
+  @Get('vehicles')
+  async getUniqueVehicles() {
+    return this.diagnosticLogsService.getUniqueVehicles();
+  }
+
+  @Get('vehicle/:id/stats')
+  async getVehicleStats(@Req() request: any) {
+    const vehicleId = parseInt(request.params.id, 10);
+    return this.diagnosticLogsService.getVehicleStats(vehicleId);
   }
 
   @Get()

@@ -40,11 +40,7 @@
           <h1>{{ vehicle.name }}</h1>
           <span class="vehicle-id">{{ vehicle.id }}</span>
         </div>
-        <div class="vehicle-status">
-          <span class="status-badge" [class]="getStatusClass(vehicle.status)">
-            {{ vehicle.status }}
-          </span>
-        </div>
+
       </div>
 
       <!-- Diagnostic Statistics -->
@@ -133,12 +129,12 @@
                   <td>{{ formatVehicleId(log.vehicleId) }}</td>
                   <td>{{ formatDateTime(log.timestamp) }}</td>
                   <td>
-                    <span class="log-level" [class]="'level-' + log.level.toLowerCase()">
-                      {{ log.level }}
+                    <span class="log-level" [class]="'level-' + formatLevel(log.level).toLowerCase()">
+                      {{ formatLevel(log.level) }}
                     </span>
                   </td>
                   <td>{{ log.code }}</td>
-                  <td>{{ log.message }}</td>
+                  <td>{{ formatMessage(log.message) }}</td>
                 </tr>
               </tbody>
             </table>

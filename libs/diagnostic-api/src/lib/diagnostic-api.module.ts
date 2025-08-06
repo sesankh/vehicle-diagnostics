@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { DiagnosticLogsController } from './diagnostic-logs.controller';
-import { DiagnosticLogsService } from './services/diagnostic-logs.service';
+import { DiagnosticLogsService, DiagnosticDbService } from '@vehicles-dashboard/db-services';
 
 @Module({
   controllers: [DiagnosticLogsController],
-  providers: [DiagnosticLogsService],
-  exports: [DiagnosticLogsService],
+  providers: [DiagnosticLogsService, DiagnosticDbService],
+  exports: [DiagnosticLogsService, DiagnosticDbService],
 })
 export class DiagnosticApiModule {
   constructor() {
