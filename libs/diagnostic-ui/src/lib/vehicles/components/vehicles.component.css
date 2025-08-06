@@ -134,6 +134,10 @@
   white-space: nowrap;
 }
 
+.vehicles-table th:last-child {
+  text-align: center;
+}
+
 .vehicles-table td {
   padding: 12px;
   border-bottom: 1px solid #f3f4f6;
@@ -196,12 +200,15 @@
 
 .actions-cell {
   text-align: center;
+  vertical-align: middle;
 }
 
 .action-buttons {
   display: flex;
   gap: 8px;
   justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 .action-btn {
