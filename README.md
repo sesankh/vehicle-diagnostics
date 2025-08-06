@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Vehicles Dashboard
 
 A comprehensive vehicle diagnostic monitoring system built with Angular (Frontend) and NestJS (Backend) using Nx monorepo architecture. This system provides real-time monitoring, diagnostic log analysis, and vehicle management capabilities.
@@ -378,3 +379,7 @@ chmod 755 data/
 
 **Note**: This is a development-ready application. For production deployment, ensure proper environment configuration, security measures, and monitoring setup.
 
+=======
+# vehicle-diagnostics
+Vehicle Diagnostics &amp; Configuration Dashboard
+>>>>>>> 833c626793d31c456fe61e8759e29dcb1d8e5cdf
