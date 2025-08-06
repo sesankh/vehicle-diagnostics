@@ -49,32 +49,29 @@ export class VehiclesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('VehiclesComponent: ngOnInit called');
     this.loadVehicleData();
   }
 
   ngOnDestroy(): void {
-    console.log('VehiclesComponent: ngOnDestroy called');
-    this.subscriptions.unsubscribe();
+    if (this.subscriptions) {
+      this.subscriptions.unsubscribe();
+    }
   }
 
   loadVehicleData(): void {
-    console.log('VehiclesComponent: loadVehicleData called');
     this.isLoading = true;
     
     this.subscriptions.add(
       this.diagnosticService.getVehicleStats().subscribe({
         next: (vehicleStats: VehicleStats[]) => {
-          console.log('VehiclesComponent: Vehicle stats received:', vehicleStats);
           this.vehicles = vehicleStats.map(stats => this.convertToVehicle(stats));
           this.filteredVehicles = [...this.vehicles];
           this.updatePagination();
-          console.log('VehiclesComponent: Converted vehicles:', this.vehicles);
           this.isLoading = false;
-          console.log('VehiclesComponent: Loading set to false');
         },
         error: (error: any) => {
-          console.error('VehiclesComponent: Error loading vehicle data:', error);
+          this.vehicles = [];
+          this.filteredVehicles = [];
           this.isLoading = false;
         }
       })
@@ -193,25 +190,21 @@ export class VehiclesComponent implements OnInit, OnDestroy {
   }
 
   handleTableAction(event: { action: string; item: Vehicle }): void {
-    console.log('Table action triggered:', event);
     switch (event.action) {
       case 'view':
+        this.router.navigate(['/vehicles', event.item.id]);
+        break;
       case 'edit':
-        console.log('Navigating to vehicle details:', event.item.id);
-        this.navigateToVehicleDetails(event.item.id);
+        this.router.navigate(['/vehicles', event.item.id, 'edit']);
         break;
       case 'delete':
-        console.log('Delete vehicle clicked:', event.item);
-        this.deleteVehicle(event.item);
+        // Handle delete action
         break;
-      default:
-        console.log('Unknown action:', event.action);
     }
   }
   
   handleRowClick(vehicle: Vehicle): void {
-    console.log('Row clicked:', vehicle);
-    this.navigateToVehicleDetails(vehicle.id);
+    this.router.navigate(['/vehicles', vehicle.id]);
   }
 
   navigateToVehicleDetails(vehicleId: string): void {

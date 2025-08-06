@@ -1,34 +1,54 @@
-# Vehicle Diagnostics & Configuration Dashboard
+# Vehicles Dashboard
 
-A fullstack application for processing, storing, and displaying vehicle diagnostic logs with a modern web interface.
+A comprehensive vehicle diagnostic monitoring system built with Angular (Frontend) and NestJS (Backend) using Nx monorepo architecture.
 
 ## 🚀 Features
 
-### Frontend (Angular 20.1.0)
-- **Search Panel**: Filter logs by Vehicle ID, Error Code, and Timestamp range
-- **File Upload**: Drag & drop or browse to upload diagnostic log files (up to 50MB)
-- **Logs Table**: Display filtered results with sorting and CSV export
-- **Real-time Updates**: Automatic refresh after file uploads
-- **Responsive Design**: Works on desktop and mobile devices
-- **Modern UI**: Clean, accessible interface with status indicators
+### Frontend (Angular)
+- **Vehicle Management**: View, search, and manage vehicle diagnostic data
+- **Real-time Monitoring**: Live diagnostic logs with filtering and pagination
+- **Responsive Design**: Modern UI with search, pagination, and sorting capabilities
+- **Diagnostic Dashboard**: Comprehensive log analysis and statistics
+- **Vehicle Details**: Detailed view with diagnostic statistics and log history
 
-### Backend (NestJS 11.x)
-- **REST API**: Complete CRUD operations for diagnostic logs
-- **File Upload**: Handles large files (up to 50MB) with validation
-- **Webhook Support**: External systems can send diagnostic data via webhook
-- **Search & Filter**: Advanced filtering by multiple criteria
-- **Data Parsing**: Automatically parses diagnostic log format
-- **Error Handling**: Comprehensive error handling and validation
+### Backend (NestJS)
+- **RESTful API**: Complete CRUD operations for diagnostic logs
+- **File Upload**: Support for log file uploads
+- **Webhook Integration**: Real-time log ingestion via webhooks
+- **Search & Filtering**: Advanced search capabilities with date ranges
+- **Data Persistence**: JSON-based file storage with automatic backup
 
-## 📋 Requirements
+## 🏗️ Architecture
 
-- Node.js 20.19.0 or higher
-- npm 10.0.0 or higher
-- Angular CLI 20.1.0
-- Nx CLI (latest)
+### Monorepo Structure
+```
+vehicles-dashboard/
+├── apps/
+│   ├── frontend/          # Angular application
+│   └── backend/           # NestJS API server
+├── libs/
+│   ├── diagnostic-api/    # Diagnostic API library
+│   ├── diagnostic-ui/     # Diagnostic UI components
+│   ├── shared-ui/         # Shared UI components
+│   ├── ui-api-service/    # Frontend API service
+│   └── data-model/        # Shared data models
+└── data/                  # JSON data storage
+```
 
-## 🛠️ Installation
+### Technology Stack
+- **Frontend**: Angular 20, TypeScript, SCSS
+- **Backend**: NestJS, TypeScript, Express
+- **Build Tool**: Nx, Webpack
+- **Package Manager**: npm
+- **Development**: ESLint, Prettier, Jest
 
+## 📦 Installation
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm (v9 or higher)
+
+### Setup
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
@@ -40,292 +60,229 @@ A fullstack application for processing, storing, and displaying vehicle diagnost
    npm install
    ```
 
-3. **Start the backend**
+3. **Start the development servers**
    ```bash
-   npx nx serve backend
+   # Start backend API server
+   npm run start:backend
+   
+   # Start frontend application (in another terminal)
+   npm run start:frontend
    ```
-   Backend will be available at: http://localhost:3000/api
 
-4. **Start the frontend** (in a new terminal)
-   ```bash
-npx nx serve frontend
-   ```
-   Frontend will be available at: http://localhost:4200
+## 🚀 Development
 
-## 📁 Project Structure
+### Available Scripts
+```bash
+# Development
+npm run start:frontend    # Start frontend dev server
+npm run start:backend     # Start backend dev server
+npm run start:all         # Start both servers
 
-```
-vehicles-dashboard/
-├── apps/
-│   ├── backend/                 # NestJS backend application
-│   ├── frontend/                # Angular frontend application
-│  
-│  
-├── libs/
-│   ├── data-model/              # Shared data models and DTOs
-│   ├── db-services/             # Database and business logic services
-│   ├── diagnostic-api/          # Backend API controllers and modules
-│   └── diagnostic-ui/           # Frontend UI components and services
-├── sample-large-logs.txt        # Sample diagnostic log file for testing
-└── README.md                    # This file
-```
+# Building
+npm run build:frontend    # Build frontend
+npm run build:backend     # Build backend
+npm run build:all         # Build all applications
 
-## 🔧 API Documentation
+# Testing
+npm run test              # Run all tests
+npm run test:frontend     # Test frontend
+npm run test:backend      # Test backend
 
-### Base URL
-```
-http://localhost:3000/api
+# Linting
+npm run lint              # Lint all code
+npm run lint:fix          # Fix linting issues
 ```
 
-### Endpoints
+### Project Structure
 
-#### 1. Search Logs
-```http
-GET /logs?vehicle=1234&code=U0420&from=2025-07-24T00:00:00Z&to=2025-07-24T23:59:59Z
+#### Frontend (Angular)
+- **Components**: Reusable UI components with proper separation of concerns
+- **Services**: API communication and data management
+- **Modules**: Feature-based module organization
+- **Routing**: Lazy-loaded routes for optimal performance
+
+#### Backend (NestJS)
+- **Controllers**: REST API endpoints with proper validation
+- **Services**: Business logic and data processing
+- **DTOs**: Data transfer objects with validation
+- **Interceptors**: Request/response logging and transformation
+- **Filters**: Global exception handling
+
+## 📡 API Endpoints
+
+### Diagnostic Logs API
+```
+GET    /api/logs          # Search logs with filters
+GET    /api/logs/all      # Get all logs
+GET    /api/logs/count    # Get logs count
+POST   /api/logs/upload   # Upload log content
+POST   /api/logs/upload-file  # Upload log file
+POST   /api/logs/webhook  # Webhook endpoint
+DELETE /api/logs          # Clear all logs
+GET    /api/logs/test     # Health check
 ```
 
-**Query Parameters:**
-- `vehicle` (optional): Vehicle ID number
-- `code` (optional): Error code to filter by
-- `from` (optional): Start timestamp (ISO format)
-- `to` (optional): End timestamp (ISO format)
-
-**Response:**
-```json
+### Request/Response Format
+```typescript
+// Standard API Response
 {
-  "success": true,
-  "data": [
-    {
-      "timestamp": "2025-07-24T14:21:08.000Z",
-      "vehicleId": 1234,
-      "level": "ERROR",
-      "code": "U0420",
-      "message": "Steering angle sensor malfunction"
-    }
-  ],
-  "count": 1,
-  "filters": {
-    "vehicle": 1234,
-    "code": "U0420"
-  }
+  success: boolean;
+  data?: any;
+  count?: number;
+  message?: string;
+  error?: string;
+}
+
+// Search Parameters
+{
+  vehicle?: number;    // Vehicle ID filter
+  code?: string;       // Error code filter
+  from?: string;       // Start date (ISO)
+  to?: string;         // End date (ISO)
 }
 ```
-
-#### 2. Get All Logs
-```http
-GET /logs/all
-```
-
-#### 3. Get Logs Count
-```http
-GET /logs/count
-```
-
-#### 4. Upload Log Content
-```http
-POST /logs/upload
-Content-Type: application/json
-
-{
-  "content": "[2025-07-24 14:21:08] [VEHICLE_ID:1234] [ERROR] [CODE:U0420] [Steering angle sensor malfunction]"
-}
-```
-
-#### 5. Upload Log File
-```http
-POST /logs/upload-file
-Content-Type: multipart/form-data
-
-file: <file>
-```
-
-**Supported file types:** `.txt`, `.log`
-**Maximum file size:** 50MB
-
-#### 6. Webhook Endpoint
-```http
-POST /logs/webhook
-Content-Type: application/json
-X-Webhook-Secret: your-secret-key (optional)
-
-{
-  "logs": [
-    "[2025-07-24 14:21:08] [VEHICLE_ID:1234] [ERROR] [CODE:U0420] [Steering angle sensor malfunction]"
-  ]
-}
-```
-
-**Webhook Authentication:**
-- Optional authentication via `X-Webhook-Secret` header
-- Default secret: `default-webhook-secret-2024`
-- Can be overridden with `WEBHOOK_SECRET` environment variable
-
-#### 7. Clear All Logs
-```http
-DELETE /logs
-```
-
-## 📝 Diagnostic Log Format
-
-The application parses diagnostic logs in the following format:
-
-```
-[TIMESTAMP] [VEHICLE_ID:ID] [LEVEL] [CODE:CODE] [MESSAGE]
-```
-
-**Example:**
-```
-[2025-07-24 14:21:08] [VEHICLE_ID:1234] [ERROR] [CODE:U0420] [Steering angle sensor malfunction]
-```
-
-**Components:**
-- `TIMESTAMP`: Date and time in format `YYYY-MM-DD HH:mm:ss`
-- `VEHICLE_ID`: Numeric vehicle identifier
-- `LEVEL`: Log level (ERROR, WARNING, INFO)
-- `CODE`: Diagnostic trouble code (e.g., U0420, P0300)
-- `MESSAGE`: Human-readable description of the issue
-
-## 🎯 Usage Examples
-
-### 1. Upload a Diagnostic Log File
-1. Open the frontend application
-2. Drag and drop a `.txt` or `.log` file onto the upload area
-3. Click "Upload File"
-4. View the uploaded logs in the table
-
-### 2. Search for Specific Logs
-1. Use the search panel to filter by:
-   - Vehicle ID (e.g., 1234)
-   - Error Code (e.g., U0420)
-   - Date range
-2. Click "Search" to see filtered results
-3. Export results to CSV if needed
-
-### 3. Send Data via Webhook
-```bash
-curl -X POST http://localhost:3000/api/logs/webhook \
-  -H "Content-Type: application/json" \
-  -H "X-Webhook-Secret: default-webhook-secret-2024" \
-  -d '{
-    "logs": [
-      "[2025-07-24 14:21:08] [VEHICLE_ID:1234] [ERROR] [CODE:U0420] [Steering angle sensor malfunction]"
-    ]
-  }'
-```
-
-## 🏗️ Architecture
-
-### Frontend Architecture
-- **Angular 20.1.0**: Modern framework with standalone components
-- **Reactive Forms**: For search functionality
-- **HTTP Client**: For API communication
-- **Component-based**: Modular, reusable UI components
-- **TypeScript**: Type-safe development
-
-### Backend Architecture
-- **NestJS 11.x**: Enterprise-grade Node.js framework
-- **Modular Design**: Organized into feature modules
-- **DTO Validation**: Input validation using class-validator
-- **Error Handling**: Comprehensive error responses
-- **CORS Support**: Configured for frontend communication
-
-### Data Flow
-1. **File Upload**: Frontend → Backend → Parse → Store in Memory
-2. **Search**: Frontend → Backend → Filter → Return Results
-3. **Webhook**: External System → Backend → Parse → Store in Memory
-
-## 🔒 Security Features
-
-- **File Type Validation**: Only `.txt` and `.log` files accepted
-- **File Size Limits**: Maximum 50MB per file
-- **Input Validation**: All inputs validated using DTOs
-- **CORS Configuration**: Restricted to frontend origin
-- **Webhook Authentication**: Optional secret-based authentication
-
-## 🧪 Testing
-
-### Backend Tests
-```bash
-npx nx test backend
-```
-
-### Frontend Tests
-```bash
-npx nx test frontend
-```
-
-### E2E Tests
-```bash
-npx nx e2e frontend-e2e
-npx nx e2e backend-e2e
-```
-
-## 🚀 Deployment
-
-### Development
-```bash
-# Start both applications
-npx nx run-many --target=serve --projects=backend,frontend
-```
-
-### Production Build
-```bash
-# Build backend
-npx nx build backend
-
-# Build frontend
-npx nx build frontend
-```
-
-## 📊 Performance
-
-- **File Upload**: Supports files up to 50MB
-- **Memory Storage**: In-memory storage for fast access
-- **Search Performance**: Optimized filtering and sorting
-- **Response Time**: Sub-second response times for typical queries
 
 ## 🔧 Configuration
 
-### Backend Configuration
-- **Port**: 3000 (configurable via `PORT` environment variable)
-- **API Prefix**: `/api`
-- **CORS**: Enabled for `http://localhost:4200`
-- **File Upload**: 50MB limit
-- **Webhook Secret**: `default-webhook-secret-2024` (configurable)
+### Environment Variables
+```bash
+# Backend (.env)
+PORT=3000
+WEBHOOK_SECRET=your-webhook-secret
+NODE_ENV=development
+```
 
-### Frontend Configuration
-- **Port**: 4200
-- **API URL**: `http://localhost:3000/api`
-- **File Upload**: 50MB limit
-- **Supported Formats**: `.txt`, `.log`
+### Data Storage
+- **Location**: `data/diagnostic-logs.json`
+- **Format**: JSON array of diagnostic log entries
+- **Auto-backup**: Automatic file creation and backup
+
+## 🧪 Testing
+
+### Frontend Testing
+```bash
+npm run test:frontend
+```
+- Unit tests for components and services
+- Integration tests for API communication
+- E2E tests for critical user flows
+
+### Backend Testing
+```bash
+npm run test:backend
+```
+- Unit tests for controllers and services
+- Integration tests for API endpoints
+- Mock data for consistent testing
+
+## 📊 Features in Detail
+
+### Vehicle Management
+- **List View**: Paginated table with search and sorting
+- **Details View**: Comprehensive vehicle information
+- **Diagnostic Statistics**: Error, warning, info, and debug counts
+- **Log History**: Complete diagnostic log timeline
+
+### Diagnostic Dashboard
+- **Real-time Logs**: Live monitoring of diagnostic data
+- **Advanced Search**: Multi-criteria filtering
+- **File Upload**: Support for various log file formats
+- **Webhook Integration**: Real-time data ingestion
+
+### Data Processing
+- **Log Parsing**: Automatic parsing of diagnostic log formats
+- **Data Validation**: Input validation and sanitization
+- **Error Handling**: Comprehensive error management
+- **Performance**: Optimized data processing and caching
+
+## 🔒 Security
+
+### API Security
+- **Input Validation**: Comprehensive request validation
+- **Error Handling**: Secure error responses
+- **Webhook Authentication**: Optional webhook secret validation
+- **CORS Configuration**: Proper cross-origin resource sharing
+
+### Data Security
+- **File Permissions**: Secure file system access
+- **Data Validation**: Input sanitization and validation
+- **Error Logging**: Secure error logging without sensitive data
+
+## 🚀 Deployment
+
+### Production Build
+```bash
+# Build for production
+npm run build:all
+
+# Start production servers
+npm run start:prod
+```
+
+### Docker Deployment
+```dockerfile
+# Dockerfile example
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY dist ./dist
+EXPOSE 3000
+CMD ["npm", "run", "start:prod"]
+```
+
+## 📈 Performance
+
+### Frontend Optimizations
+- **Lazy Loading**: Route-based code splitting
+- **Caching**: API response caching
+- **Bundle Optimization**: Tree shaking and minification
+- **CDN Ready**: Static asset optimization
+
+### Backend Optimizations
+- **Request Logging**: Performance monitoring
+- **Error Handling**: Efficient error processing
+- **Data Caching**: In-memory caching for frequently accessed data
+- **File I/O**: Optimized file operations
 
 ## 🤝 Contributing
 
+### Development Guidelines
+1. **Code Style**: Follow ESLint and Prettier configurations
+2. **Testing**: Write tests for new features
+3. **Documentation**: Update documentation for API changes
+4. **Commits**: Use conventional commit messages
+
+### Pull Request Process
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Add tests and documentation
 5. Submit a pull request
 
-## 📄 License
+## 📝 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-For support and questions:
-1. Check the API documentation above
-2. Review the sample log file: `sample-large-logs.txt`
-3. Check the browser console for frontend errors
-4. Check the backend logs for server errors
+### Common Issues
+- **Port Conflicts**: Ensure ports 3000 and 4200 are available
+- **File Permissions**: Check write permissions for data directory
+- **Dependencies**: Clear node_modules and reinstall if needed
 
-## 🔄 Future Enhancements
+### Getting Help
+- Check the [Issues](../../issues) page
+- Review the [Documentation](./docs)
+- Contact the development team
 
-- [ ] Database persistence (PostgreSQL, MongoDB)
-- [ ] Real-time notifications
-- [ ] Advanced analytics and reporting
-- [ ] User authentication and authorization
-- [ ] Bulk operations
-- [ ] API rate limiting
-- [ ] Docker containerization
-- [ ] CI/CD pipeline
+## 🔄 Changelog
+
+### Version 1.0.0
+- Initial release with core functionality
+- Vehicle management and diagnostic monitoring
+- RESTful API with webhook support
+- Modern Angular frontend with responsive design
+
+---
+

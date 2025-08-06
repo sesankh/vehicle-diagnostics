@@ -81,7 +81,6 @@ export class VehicleDetailsComponent implements OnInit {
   loadVehicleDetails(): void {
     this.isLoading = true;
     
-    // Extract vehicle ID number from the string (e.g., "V1001" -> 1001)
     const vehicleIdNum = parseInt(this.vehicleId!.replace('V', ''));
     
     this.diagnosticService.getVehicleStats().subscribe({
@@ -92,16 +91,12 @@ export class VehicleDetailsComponent implements OnInit {
           this.vehicle = this.convertToVehicleDetails(vehicleStat);
           this.originalVehicle = { ...this.vehicle };
         } else {
-          console.error('Vehicle not found in stats');
-          // Create a default vehicle if not found
           this.vehicle = this.createDefaultVehicle(vehicleIdNum);
           this.originalVehicle = { ...this.vehicle };
         }
         this.isLoading = false;
       },
       error: (error: any) => {
-        console.error('Error loading vehicle details:', error);
-        // Create a default vehicle on error
         const vehicleIdNum = parseInt(this.vehicleId!.replace('V', ''));
         this.vehicle = this.createDefaultVehicle(vehicleIdNum);
         this.originalVehicle = { ...this.vehicle };
@@ -113,24 +108,20 @@ export class VehicleDetailsComponent implements OnInit {
   loadVehicleLogs(): void {
     this.isLoadingLogs = true;
     
-    // Extract vehicle ID number from the string (e.g., "V1001" -> 1001)
     const vehicleIdNum = parseInt(this.vehicleId!.replace('V', ''));
     
     this.diagnosticService.getAllLogs().subscribe({
       next: (response: any) => {
         if (response.success && response.data) {
-          // Filter logs for this specific vehicle
           this.vehicleLogs = response.data.filter((log: DiagnosticLogEntry) => log.vehicleId === vehicleIdNum);
         } else {
           this.vehicleLogs = [];
         }
-        // Initialize search and pagination
         this.filterLogs();
         this.updatePagination();
         this.isLoadingLogs = false;
       },
       error: (error: any) => {
-        console.error('Error loading vehicle logs:', error);
         this.vehicleLogs = [];
         this.filterLogs();
         this.updatePagination();

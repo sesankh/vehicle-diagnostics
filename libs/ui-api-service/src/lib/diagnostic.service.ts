@@ -44,7 +44,7 @@ export interface VehicleStats {
 
 @Injectable({ providedIn: 'root' })
 export class DiagnosticService {
-  private readonly apiUrl = 'http://localhost:3000/api/logs';
+  private readonly apiUrl = '/api/logs';
   
   // Cache for better performance
   private cachedLogs: DiagnosticLogEntry[] = [];
@@ -61,12 +61,10 @@ export class DiagnosticService {
   get isLoading$() { return this.isLoadingSubject.asObservable(); }
 
   searchLogs(searchDto: SearchLogsDto): Observable<ApiResponse<DiagnosticLogEntry[]>> {
-    console.log('DiagnosticService: searchLogs called with criteria:', searchDto);
     
     // If we have cached logs, search through them
     if (this.cachedLogs.length > 0) {
       const filteredLogs = this.filterLogs(this.cachedLogs, searchDto);
-      console.log('DiagnosticService: Found', filteredLogs.length, 'logs matching criteria');
       return of({
         success: true,
         data: filteredLogs,
@@ -80,7 +78,6 @@ export class DiagnosticService {
       map(response => {
         if (response.success && response.data) {
           const filteredLogs = this.filterLogs(response.data, searchDto);
-          console.log('DiagnosticService: Found', filteredLogs.length, 'logs matching criteria');
           return {
             success: true,
             data: filteredLogs,
@@ -91,15 +88,12 @@ export class DiagnosticService {
         return { success: false, error: 'Failed to load logs for search' };
       }),
       catchError(error => {
-        console.error('Error searching logs:', error);
         return of({ success: false, error: 'Failed to search logs' });
       })
     );
   }
 
   private filterLogs(logs: DiagnosticLogEntry[], searchDto: SearchLogsDto): DiagnosticLogEntry[] {
-    console.log('DiagnosticService: Filtering logs with criteria:', searchDto);
-    console.log('DiagnosticService: Total logs to filter:', logs.length);
     
     return logs.filter(log => {
       // Filter by vehicle ID
@@ -161,7 +155,6 @@ export class DiagnosticService {
           this.isLoadingSubject.next(false);
         }),
         catchError(error => {
-          console.error('Error getting all logs:', error);
           this.isLoadingSubject.next(false);
           return of({ success: false, error: 'Failed to get logs' });
         })
@@ -172,7 +165,6 @@ export class DiagnosticService {
     return this.http.get<ApiResponse<number>>(`${this.apiUrl}/count`)
       .pipe(
         catchError(error => {
-          console.error('Error getting logs count:', error);
           return of({ success: false, error: 'Failed to get logs count' });
         })
       );
@@ -191,7 +183,6 @@ export class DiagnosticService {
           }
         }),
         catchError(error => {
-          console.error('Error uploading logs:', error);
           return of({ success: false, error: 'Failed to upload logs' });
         })
       );
@@ -213,7 +204,6 @@ export class DiagnosticService {
           }
         }),
         catchError(error => {
-          console.error('Error uploading file:', error);
           return of({ success: false, error: 'Failed to upload file' });
         })
       );
@@ -232,38 +222,27 @@ export class DiagnosticService {
           }
         }),
         catchError(error => {
-          console.error('Error clearing logs:', error);
           return of({ success: false, error: 'Failed to clear logs' });
         })
       );
   }
 
   getVehicleStats(): Observable<VehicleStats[]> {
-    console.log('DiagnosticService: getVehicleStats called');
-    // Return cached data if available
     if (this.cachedVehicleStats.length > 0) {
-      console.log('DiagnosticService: Returning cached vehicle stats:', this.cachedVehicleStats);
       return of(this.cachedVehicleStats);
     }
 
-    console.log('DiagnosticService: No cached data, fetching from API');
-    // Otherwise, fetch all logs and calculate stats
     return this.getAllLogs().pipe(
       map(response => {
-        console.log('DiagnosticService: getAllLogs response:', response);
         if (response.success && response.data) {
           const stats = this.calculateVehicleStats(response.data);
-          console.log('DiagnosticService: Calculated vehicle stats:', stats);
           this.cachedVehicleStats = stats;
           this.vehicleStatsSubject.next(stats);
           return stats;
         }
-        console.log('DiagnosticService: No data in response, returning empty array');
         return [];
       }),
       catchError(error => {
-        console.error('DiagnosticService: Error getting vehicle stats:', error);
-        console.log('DiagnosticService: Returning empty array due to error');
         return of([]);
       })
     );
@@ -305,7 +284,6 @@ export class DiagnosticService {
           break;
         default:
           // Log any unexpected levels for debugging
-          console.log('Unexpected log level:', log.level, 'for vehicle:', log.vehicleId);
           break;
       }
 
@@ -326,13 +304,6 @@ export class DiagnosticService {
     for (const key in vehicleMap) {
       if (vehicleMap.hasOwnProperty(key)) {
         const stats = vehicleMap[key];
-        console.log(`Vehicle ${stats.vehicleId} stats:`, {
-          totalLogs: stats.totalLogs,
-          errorCount: stats.errorCount,
-          warningCount: stats.warningCount,
-          infoCount: stats.infoCount,
-          debugCount: stats.debugCount
-        });
         result.push(stats);
       }
     }
@@ -391,7 +362,6 @@ export class DiagnosticService {
           this.isLoadingSubject.next(false);
         }),
         catchError(error => {
-          console.error('Error getting vehicle details:', error);
           this.isLoadingSubject.next(false);
           return of({ success: false, error: 'Failed to get vehicle details' });
         })

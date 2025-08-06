@@ -118,12 +118,10 @@ export class CustomTableComponent {
   }
 
   handleAction(action: string, item: any) {
-    console.log('Custom table action triggered:', { action, item });
     this.onAction.emit({ action, item });
   }
 
   handleRowClick(item: any) {
-    console.log('Custom table row clicked:', item);
     this.onRowClick.emit(item);
   }
 

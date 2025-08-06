@@ -6,6 +6,7 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
 import * as express from 'express';
 
@@ -35,11 +36,32 @@ async function bootstrap() {
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
+
+  // Swagger configuration - AFTER setting global prefix
+  const config = new DocumentBuilder()
+    .setTitle('Vehicles Dashboard API')
+    .setDescription('API for vehicle diagnostic monitoring and management')
+    .setVersion('1.0')
+    .addTag('diagnostics', 'Diagnostic logs management')
+    .addBearerAuth()
+    .build();
+  
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+    customSiteTitle: 'Vehicles Dashboard API Documentation',
+  });
+
   const port = process.env.PORT || 3000;
   
   await app.listen(port);
   Logger.log(
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
+  );
+  Logger.log(
+    `📚 Swagger documentation available at: http://localhost:${port}/api/docs`
   );
 }
 

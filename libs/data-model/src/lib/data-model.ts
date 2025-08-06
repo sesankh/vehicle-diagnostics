@@ -1,1 +1,1 @@
-export * from './diagnostic-log.model'; 
+export * from './models/diagnostic-log.model'; 

@@ -15,7 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@vehicles-dashboard/api-utils": ["libs/api-utils/src/index.ts"],
       "@vehicles-dashboard/data-model": ["libs/data-model/src/index.ts"],
+      "@vehicles-dashboard/db-services": ["libs/db-services/src/index.ts"],
       "@vehicles-dashboard/diagnostic-api": [
         "libs/diagnostic-api/src/index.ts"
       ],
