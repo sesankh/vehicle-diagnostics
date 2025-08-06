@@ -37,6 +37,7 @@ export interface VehicleStats {
   errorCount: number;
   warningCount: number;
   infoCount: number;
+  debugCount: number;
   lastDiagnostic?: string;
   lastUpdate?: string;
 }
@@ -60,25 +61,82 @@ export class DiagnosticService {
   get isLoading$() { return this.isLoadingSubject.asObservable(); }
 
   searchLogs(searchDto: SearchLogsDto): Observable<ApiResponse<DiagnosticLogEntry[]>> {
-    const params = new HttpParams()
-      .set('vehicle', searchDto.vehicle?.toString() || '')
-      .set('code', searchDto.code || '')
-      .set('from', searchDto.from || '')
-      .set('to', searchDto.to || '');
+    console.log('DiagnosticService: searchLogs called with criteria:', searchDto);
+    
+    // If we have cached logs, search through them
+    if (this.cachedLogs.length > 0) {
+      const filteredLogs = this.filterLogs(this.cachedLogs, searchDto);
+      console.log('DiagnosticService: Found', filteredLogs.length, 'logs matching criteria');
+      return of({
+        success: true,
+        data: filteredLogs,
+        count: filteredLogs.length,
+        message: `Found ${filteredLogs.length} logs matching search criteria`
+      });
+    }
 
-    return this.http.get<ApiResponse<DiagnosticLogEntry[]>>(`${this.apiUrl}`, { params })
-      .pipe(
-        tap(response => {
-          if (response.success && response.data) {
-            this.cachedLogs = response.data;
-            this.logsSubject.next(response.data);
+    // Otherwise, fetch all logs first and then search
+    return this.getAllLogs().pipe(
+      map(response => {
+        if (response.success && response.data) {
+          const filteredLogs = this.filterLogs(response.data, searchDto);
+          console.log('DiagnosticService: Found', filteredLogs.length, 'logs matching criteria');
+          return {
+            success: true,
+            data: filteredLogs,
+            count: filteredLogs.length,
+            message: `Found ${filteredLogs.length} logs matching search criteria`
+          };
+        }
+        return { success: false, error: 'Failed to load logs for search' };
+      }),
+      catchError(error => {
+        console.error('Error searching logs:', error);
+        return of({ success: false, error: 'Failed to search logs' });
+      })
+    );
+  }
+
+  private filterLogs(logs: DiagnosticLogEntry[], searchDto: SearchLogsDto): DiagnosticLogEntry[] {
+    console.log('DiagnosticService: Filtering logs with criteria:', searchDto);
+    console.log('DiagnosticService: Total logs to filter:', logs.length);
+    
+    return logs.filter(log => {
+      // Filter by vehicle ID
+      if (searchDto.vehicle !== undefined && searchDto.vehicle !== null) {
+        if (log.vehicleId !== searchDto.vehicle) {
+          return false;
+        }
+      }
+
+      // Filter by error code (case-insensitive partial match)
+      if (searchDto.code && searchDto.code.trim() !== '') {
+        if (log.code.toLowerCase().indexOf(searchDto.code.toLowerCase()) === -1) {
+          return false;
+        }
+      }
+
+      // Filter by date range
+      if (searchDto.from || searchDto.to) {
+        const logDate = new Date(log.timestamp);
+        
+        if (searchDto.from && searchDto.from.trim() !== '') {
+          const fromDate = new Date(searchDto.from);
+          if (logDate < fromDate) {
+            return false;
           }
-        }),
-        catchError(error => {
-          console.error('Error searching logs:', error);
-          return of({ success: false, error: 'Failed to search logs' });
-        })
-      );
+        }
+        
+        if (searchDto.to && searchDto.to.trim() !== '') {
+          const toDate = new Date(searchDto.to);
+          if (logDate > toDate) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    });
   }
 
   getAllLogs(): Observable<ApiResponse<DiagnosticLogEntry[]>> {
@@ -181,54 +239,54 @@ export class DiagnosticService {
   }
 
   getVehicleStats(): Observable<VehicleStats[]> {
+    console.log('DiagnosticService: getVehicleStats called');
     // Return cached data if available
     if (this.cachedVehicleStats.length > 0) {
+      console.log('DiagnosticService: Returning cached vehicle stats:', this.cachedVehicleStats);
       return of(this.cachedVehicleStats);
     }
 
+    console.log('DiagnosticService: No cached data, fetching from API');
     // Otherwise, fetch all logs and calculate stats
     return this.getAllLogs().pipe(
       map(response => {
+        console.log('DiagnosticService: getAllLogs response:', response);
         if (response.success && response.data) {
           const stats = this.calculateVehicleStats(response.data);
+          console.log('DiagnosticService: Calculated vehicle stats:', stats);
           this.cachedVehicleStats = stats;
           this.vehicleStatsSubject.next(stats);
           return stats;
         }
+        console.log('DiagnosticService: No data in response, returning empty array');
         return [];
       }),
       catchError(error => {
-        console.error('Error getting vehicle stats:', error);
+        console.error('DiagnosticService: Error getting vehicle stats:', error);
+        console.log('DiagnosticService: Returning empty array due to error');
         return of([]);
       })
     );
   }
 
-  // Force refresh data
-  refreshData(): void {
-    this.cachedLogs = [];
-    this.cachedVehicleStats = [];
-    this.logsSubject.next([]);
-    this.vehicleStatsSubject.next([]);
-  }
-
   private calculateVehicleStats(logs: DiagnosticLogEntry[]): VehicleStats[] {
-    const vehicleMap = new Map<number, VehicleStats>();
+    const vehicleMap: { [key: number]: VehicleStats } = {};
 
     logs.forEach(log => {
-      if (!vehicleMap.has(log.vehicleId)) {
-        vehicleMap.set(log.vehicleId, {
+      if (!vehicleMap[log.vehicleId]) {
+        vehicleMap[log.vehicleId] = {
           vehicleId: log.vehicleId,
           totalLogs: 0,
           errorCount: 0,
           warningCount: 0,
           infoCount: 0,
+          debugCount: 0,
           lastDiagnostic: log.timestamp,
           lastUpdate: log.timestamp
-        });
+        };
       }
 
-      const stats = vehicleMap.get(log.vehicleId)!;
+      const stats = vehicleMap[log.vehicleId];
       stats.totalLogs++;
 
       switch (log.level.toLowerCase()) {
@@ -236,10 +294,18 @@ export class DiagnosticService {
           stats.errorCount++;
           break;
         case 'warning':
+        case 'warn':
           stats.warningCount++;
           break;
         case 'info':
           stats.infoCount++;
+          break;
+        case 'debug':
+          stats.debugCount++;
+          break;
+        default:
+          // Log any unexpected levels for debugging
+          console.log('Unexpected log level:', log.level, 'for vehicle:', log.vehicleId);
           break;
       }
 
@@ -256,6 +322,87 @@ export class DiagnosticService {
       }
     });
 
-    return Array.from(vehicleMap.values()).sort((a, b) => a.vehicleId - b.vehicleId);
+    const result: VehicleStats[] = [];
+    for (const key in vehicleMap) {
+      if (vehicleMap.hasOwnProperty(key)) {
+        const stats = vehicleMap[key];
+        console.log(`Vehicle ${stats.vehicleId} stats:`, {
+          totalLogs: stats.totalLogs,
+          errorCount: stats.errorCount,
+          warningCount: stats.warningCount,
+          infoCount: stats.infoCount,
+          debugCount: stats.debugCount
+        });
+        result.push(stats);
+      }
+    }
+    return result.sort((a: VehicleStats, b: VehicleStats) => a.vehicleId - b.vehicleId);
+  }
+
+  private calculateStatus(stats?: VehicleStats): 'active' | 'maintenance' | 'offline' {
+    if (!stats) return 'offline';
+    if (stats.errorCount > 5) return 'maintenance';
+    if (stats.totalLogs === 0 || !stats.lastUpdate) return 'offline';
+    return 'active';
+  }
+
+  private calculateUptime(logs: DiagnosticLogEntry[]): number {
+    if (logs.length === 0) return 0;
+    
+    const now = new Date();
+    const firstLog = new Date(logs[logs.length - 1].timestamp);
+    const totalTime = now.getTime() - firstLog.getTime();
+    const errorTime = logs
+      .filter(log => log.level.toLowerCase() === 'error')
+      .reduce((total, log) => total + 1, 0) * 60000; // Assume 1 minute per error
+    
+    return Math.max(0, ((totalTime - errorTime) / totalTime) * 100);
+  }
+
+  private calculateAverageErrorsPerDay(logs: DiagnosticLogEntry[]): number {
+    if (logs.length === 0) return 0;
+    
+    const errorLogs = logs.filter(log => log.level.toLowerCase() === 'error');
+    const firstLog = new Date(logs[logs.length - 1].timestamp);
+    const lastLog = new Date(logs[0].timestamp);
+    const daysDiff = (lastLog.getTime() - firstLog.getTime()) / (1000 * 60 * 60 * 24);
+    
+    return daysDiff > 0 ? errorLogs.length / daysDiff : 0;
+  }
+
+  private getLastMaintenanceDate(logs: DiagnosticLogEntry[]): string {
+    const maintenanceLogs = logs.filter(log => 
+      log.message.toLowerCase().indexOf('maintenance') !== -1 || 
+      log.code.toLowerCase().indexOf('maint') !== -1
+    );
+    
+    if (maintenanceLogs.length === 0) return 'No maintenance records';
+    
+    return new Date(maintenanceLogs[0].timestamp).toLocaleDateString();
+  }
+
+  getVehicleDetails(vehicleId: number): Observable<ApiResponse<any>> {
+    this.isLoadingSubject.next(true);
+    
+    // Call backend API to get vehicle details
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/vehicle/${vehicleId}`)
+      .pipe(
+        tap(response => {
+          this.isLoadingSubject.next(false);
+        }),
+        catchError(error => {
+          console.error('Error getting vehicle details:', error);
+          this.isLoadingSubject.next(false);
+          return of({ success: false, error: 'Failed to get vehicle details' });
+        })
+      );
+  }
+
+  // Force refresh data
+  refreshData(): void {
+    this.cachedLogs = [];
+    this.cachedVehicleStats = [];
+    this.logsSubject.next([]);
+    this.vehicleStatsSubject.next([]);
   }
 } 

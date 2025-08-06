@@ -69,6 +69,7 @@
                 class="action-btn"
                 [class]="'action-' + (action.color || 'primary')"
                 [title]="action.label"
+                style="border: 2px solid red;"
               >
                 <span class="material-icons">{{ action.icon }}</span>
               </button>
@@ -89,7 +90,7 @@
     <!-- Empty State -->
     <div *ngIf="!loading && paginatedData.length === 0" class="empty-state">
       <span class="material-icons empty-icon">inbox</span>
-      <p>No data available</p>
+      <p>{{ emptyMessage }}</p>
     </div>
   </div>
 

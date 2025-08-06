@@ -103,6 +103,11 @@
   color: #1e40af;
 }
 
+.level-debug {
+  background: #e2e3e5;
+  color: #6c757d;
+}
+
 .error-code {
   font-family: monospace;
   font-size: 0.875rem;

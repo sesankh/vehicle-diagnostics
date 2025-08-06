@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DiagnosticService, VehicleStats } from '@vehicles-dashboard/ui-api-service';
 import { ProgressLoaderComponent } from '@vehicles-dashboard/shared-ui';
+import { VehicleData } from '../../vehicles/vehicle.resolver';
 
 export interface VehicleDetails {
   id: string;
@@ -49,10 +50,19 @@ export class VehicleDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Get vehicle ID from route params
-    this.route.params.subscribe(params => {
-      this.vehicleId = params['id'];
-      if (this.vehicleId) {
+    // Get resolved data from route
+    this.route.data.subscribe(data => {
+      const vehicleData: VehicleData = data['vehicleData'];
+      if (vehicleData && vehicleData.exists) {
+        this.vehicleId = vehicleData.vehicleId;
+        if (vehicleData.vehicleStats) {
+          this.vehicle = this.convertToVehicleDetails(vehicleData.vehicleStats);
+          this.originalVehicle = { ...this.vehicle };
+        } else {
+          this.loadVehicleDetails();
+        }
+      } else if (vehicleData) {
+        this.vehicleId = vehicleData.vehicleId;
         this.loadVehicleDetails();
       }
     });

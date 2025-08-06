@@ -27,11 +27,13 @@ export class SearchPanelComponent {
 
   onSearch(): void {
     if (this.searchForm.valid) {
+      const formValues = this.searchForm.value;
+      
       const searchData: SearchLogsDto = {
-        vehicle: this.searchForm.get('vehicle')?.value || undefined,
-        code: this.searchForm.get('code')?.value || undefined,
-        from: this.searchForm.get('from')?.value || undefined,
-        to: this.searchForm.get('to')?.value || undefined
+        vehicle: formValues.vehicle ? Number(formValues.vehicle) : undefined,
+        code: formValues.code || undefined,
+        from: formValues.from || undefined,
+        to: formValues.to || undefined
       };
 
       // Only emit if at least one field has a value
@@ -41,7 +43,10 @@ export class SearchPanelComponent {
       });
 
       if (hasValues) {
+        console.log('SearchPanel: Emitting search data:', searchData);
         this.search.emit(searchData);
+      } else {
+        console.log('SearchPanel: No search criteria provided');
       }
     }
   }

@@ -79,8 +79,10 @@ export class LogsTableComponent {
   getBadgeClass(level: string): string {
     switch (level.toLowerCase()) {
       case 'error': return 'error';
-      case 'warning': return 'warning';
+      case 'warning':
+      case 'warn': return 'warning';
       case 'info': return 'info';
+      case 'debug': return 'debug';
       default: return 'info';
     }
   }

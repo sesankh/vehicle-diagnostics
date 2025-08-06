@@ -1,0 +1,133 @@
+<div class="vehicles-page">
+  <div class="page-header">
+    <h1>Vehicles</h1>
+    <button class="add-btn" (click)="addVehicle()" disabled>
+      <span class="material-icons">add</span>
+      Add Vehicle
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <div class="search-bar">
+      <div class="search-input-wrapper">
+        <span class="material-icons search-icon">search</span>
+        <input 
+          type="text" 
+          placeholder="Search vehicles..." 
+          class="search-input"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+        >
+      </div>
+    </div>
+  </div>
+  
+  <!-- Vehicles Table -->
+  <div class="table-container">
+    <table class="vehicles-table">
+      <thead>
+        <tr>
+          <th>Vehicle ID</th>
+          <th>Name</th>
+          <th>Model</th>
+          <th>Year</th>
+          <th>Status</th>
+          <th>Total Logs</th>
+          <th>Last Diagnostic</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr 
+          *ngFor="let vehicle of paginatedVehicles" 
+          (click)="handleRowClick(vehicle)"
+          class="table-row"
+        >
+          <td>{{ vehicle.id }}</td>
+          <td>{{ vehicle.name }}</td>
+          <td>{{ vehicle.model }}</td>
+          <td>{{ vehicle.year }}</td>
+          <td>
+            <span class="status-badge" [class]="'status-' + vehicle.status">
+              {{ vehicle.status }}
+            </span>
+          </td>
+          <td>{{ vehicle.totalLogs || 0 }}</td>
+          <td>{{ formatDateTime(vehicle.lastDiagnostic) }}</td>
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <button 
+                (click)="handleTableAction({action: 'view', item: vehicle}); $event.stopPropagation()"
+                class="action-btn action-primary"
+                title="View"
+              >
+                <span class="material-icons">visibility</span>
+              </button>
+              <button 
+                (click)="handleTableAction({action: 'edit', item: vehicle}); $event.stopPropagation()"
+                class="action-btn action-secondary"
+                title="Edit"
+                disabled
+              >
+                <span class="material-icons">edit</span>
+              </button>
+              <button 
+                (click)="handleTableAction({action: 'delete', item: vehicle}); $event.stopPropagation()"
+                class="action-btn action-danger"
+                title="Delete"
+                disabled
+              >
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, filteredVehicles.length) }} of {{ filteredVehicles.length }} vehicles
+      </div>
+      
+      <div class="pagination-controls">
+        <button 
+          class="pagination-btn" 
+          (click)="goToPage(currentPage - 1)"
+          [disabled]="currentPage === 1"
+        >
+          <span class="material-icons">chevron_left</span>
+          Previous
+        </button>
+        
+        <div class="page-numbers">
+          <button 
+            *ngFor="let page of getPageNumbers()" 
+            class="page-btn"
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+        </div>
+        
+        <button 
+          class="pagination-btn" 
+          (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages"
+        >
+          Next
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.table-row:hover {
+  background-color: #f3f4f6 !important;
+}
+</style> 

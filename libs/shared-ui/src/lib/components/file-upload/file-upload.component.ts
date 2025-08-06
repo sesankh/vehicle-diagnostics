@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild, ElementRef, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './file-upload.component.css'
 })
 export class FileUploadComponent {
+  @Input() disabled = false;
   @Output() fileUpload = new EventEmitter<string>();
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 

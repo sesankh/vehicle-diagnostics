@@ -32,6 +32,7 @@ export class CustomTableComponent {
   @Input() showSearch: boolean = true;
   @Input() showPagination: boolean = true;
   @Input() loading: boolean = false;
+  @Input() emptyMessage: string = 'No data available';
 
   @Output() onAction = new EventEmitter<{ action: string; item: any }>();
   @Output() onRowClick = new EventEmitter<any>();
@@ -117,10 +118,12 @@ export class CustomTableComponent {
   }
 
   handleAction(action: string, item: any) {
+    console.log('Custom table action triggered:', { action, item });
     this.onAction.emit({ action, item });
   }
 
   handleRowClick(item: any) {
+    console.log('Custom table row clicked:', item);
     this.onRowClick.emit(item);
   }
 
